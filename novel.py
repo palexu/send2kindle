@@ -3,6 +3,7 @@ from  urllib.request import urlopen
 from bs4 import BeautifulSoup
 import requests
 import re
+import os
 
 import cnconvert as cn2
 import sql 
@@ -18,7 +19,7 @@ headers={"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Ge
         "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
 
-def getAllNovelLinks(pageUrl):
+def getAllChapterLinks(pageUrl):
     "return linksList=[link,name]"
     html = session.get(pageUrl,headers=headers)
     bsObj = BeautifulSoup(html.text,"html.parser")
@@ -36,14 +37,19 @@ def getAllNovelLinks(pageUrl):
                 l=["http://www.shumilou.co"+link,name]
                 linksList.append(l)
         except Exception:
-            print("getAllNovelLinks:error")
+            print("getAllChapterLinks:error")
     linksList=linksList[:-1]
     return linksList
 
-def getNovelName(pageUrl):
+def getNovelName_chi(pageUrl):
     html = session.get(pageUrl,headers=headers)
     bsObj = BeautifulSoup(html.text,"html.parser")
     name=bsObj.find("div",{"class":"tit"}).b.get_text()
+    return name
+
+def getNovelName_en(pageUrl):
+    name=pageUrl.replace("http://www.shumilou.co/","")
+    print(name)
     return name
 
 #测试用：打印链接列表
@@ -76,21 +82,26 @@ def getOneChapter(link):
 
 def save2file(filename,content):
     #保存为电子书文件
-    filename=filename+".txt"
+    filename=filename
     f=open(filename,'a')
     f.write(content)
     f.close()
 
-def getNewChapters(pageUrl):
-    lists=getAllNovelLinks(pageUrl)
-    filename=getNovelName(pageUrl)
+def getNewChapters(pageUrl,charset="en"):
+    lists=getAllChapterLinks(pageUrl)
+    novelname_chi=getNovelName_chi(pageUrl)
+
+    if charset=="en":
+        print("using en novelname")
+        filename=getNovelName_en(pageUrl)
+    else:
+        filename=novelname_chi
 
     #获取数据库的记录
-    nextChapter=sql.nextChapter(filename)
+    nextChapter=sql.nextChapter(novelname_chi)
 
     mx=0
     l=[] #未阅读列表
-
     #尝试对标题进行处理
     for item in lists:
         try:
@@ -109,30 +120,33 @@ def getNewChapters(pageUrl):
         except Exception as e:
             print(e)
 
-    print("max:"+str(mx))
     for i in l:
         print(i[1])
 
-    #构造待发送的文件名
-    start=l[0][1].split()[0]
-    end=l[-1][1].split()[0]
+    # 构造待发送的文件名：该处理很不健壮！！
+    #作用： 第1章 测试章节 --> 1
+    start=l[0][1].split()[0][1:-1]
+    end=l[-1][1].split()[0][1:-1]
+
     if start==end:
         suf=start
     else:
         suf=start+"-"+end
     print(suf)
-    chapterSpider(l,filename,limit=False,suffix=suf)
-    # sql.setAtChapter(filename,mx)
-    return filename+suf+".txt"
+
+    filename=filename+"#"+suf+".txt"
+    chapterSpider(l,filename,limit=False)
+    sql.setAtChapter(novelname_chi,mx)
+    return filename
 
 
 def getAllChapters(novelUrl):
-    links=getAllNovelLinks(novelUrl)
-    filename=getNovelName(novelUrl)
+    links=getAllChapterLinks(novelUrl)
+    filename=getNovelName_chi(novelUrl)
     chapterSpider(links,filename)
     
 
-def chapterSpider(links,filename,suffix="",limit=True):
+def chapterSpider(links,filename,limit=True):
     "若不解除限制，则只发送3章"
     if limit==True:
         times=3
@@ -148,39 +162,31 @@ def chapterSpider(links,filename,suffix="",limit=True):
             url=link[0]
             print(url)
             content=getOneChapter(url)
-            save2file(filename+suffix,content)
+            save2file(filename,content)
             # time.sleep(500)
         except Exception as e:
             print(e)
 
 
-def html2txt():
-    pass
-
-def send2kindle():
-    pass
-
 def test():
-    print("test:getAllNovel")
+    print("test:getAllChapterLinks")
     getAllChapters("http://www.shumilou.co/xiuzhensiwannian")
 
-    print("test:getNoelName")
-    print(getNovelName("http://www.shumilou.co/xiuzhensiwannian"))
+    print("test:getNovelName_chi")
+    print(getNovelName_chi("http://www.shumilou.co/xiuzhensiwannian"))
 
 def is_chi(self,text):
     "判断是否为中文"
     return all('\u4e00' <= char <= '\u9fff' for char in text)
 
 if __name__ == '__main__':
-    """
-
-    """
     # test()
-    # sql.setAtChapter("修真四万年",1294)
+    sql.setAtChapter("修真四万年",1294)
     # sql.show()
-    # filename=getNewChapters("http://www.shumilou.co/xiuzhensiwannian")
+    filename=getNewChapters("http://www.shumilou.co/xiuzhensiwannian")
+    print(filename)
     # sql.show()
-    filename="修真四万年1295-1299.txt"
+    # filename="修真四万年1295-1299.txt"
     kindle.send2kindle(filename)
             
     
