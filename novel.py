@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import os
+import traceback
 
 import cnconvert as cn2
 import sql 
@@ -21,23 +22,26 @@ headers={"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Ge
 
 def getAllChapterLinks(pageUrl):
     "return linksList=[link,name]"
+    print("getAllChapterLinks>>>>>>>>>>:"+pageUrl)
     html = session.get(pageUrl,headers=headers)
     bsObj = BeautifulSoup(html.text,"html.parser")
 
     novelList=bsObj.findAll("li")
 
     linksList=[]
-    pattern=re.compile(r'/xiuzhensiwannian')
+    regx=pageUrl.replace("http://www.shumilou.co","")
+    pattern=re.compile(regx)
     for novel in novelList:
         try:
             link=novel.a['href']
             name=novel.get_text()
             match=pattern.search(link)
             if match:
+                # print(link)
                 l=["http://www.shumilou.co"+link,name]
                 linksList.append(l)
-        except Exception:
-            print("getAllChapterLinks:error")
+        except Exception as e:
+            print("getAllChapterLinks:error  "+str(e))
     linksList=linksList[:-1]
     return linksList
 
@@ -87,6 +91,37 @@ def save2file(filename,content):
     f.write(content)
     f.close()
 
+def washNovelList(lists,nextChapter=0):
+    "返回所有未读章节，与最新章节数；默认当前阅读到第一章，即返回所有章节"
+    l=[]
+    mx=0
+    print(">>>>>>><<<<<<<<<<<"+str(nextChapter))
+    for item in lists:
+        if "第" in item[1] and "章" in item[1]:
+            try:
+                chapter=item[1].split()[0]
+                if "两" in chapter:
+                    chapter=chapter.replace("两","二")
+                # print("wash "+chapter)
+                chapter=chapter.replace("第","")
+                chapter=chapter.replace("章","")
+
+                #若全数字
+                if chapter.isdigit()==True:
+                    num=int(chapter)
+                #若其他
+                else:
+                    num=cn2.c2n(chapter)
+                if num>mx:
+                    mx=num
+                    if num>=nextChapter:
+                        l.append(item)
+            except Exception as e:
+                traceback.print_exc()
+    start=nextChapter
+    end=mx
+    return l,end,start
+
 def getNewChapters(pageUrl,charset="en"):
     lists=getAllChapterLinks(pageUrl)
     novelname_chi=getNovelName_chi(pageUrl)
@@ -100,55 +135,55 @@ def getNewChapters(pageUrl,charset="en"):
     #获取数据库的记录
     nextChapter=sql.nextChapter(novelname_chi)
 
-    mx=0
-    l=[] #未阅读列表
     #尝试对标题进行处理
-    for item in lists:
-        try:
-            chapter=item[1].split()[0]
-            chapter=chapter[1:-1]
-            #若全数字
-            if chapter.isdigit()==True:
-                num=int(chapter)
-            #若其他
-            else:
-                num=cn2.c2n(chapter)
-            if num>=nextChapter:
-                l.append(item)
-                if num>mx:
-                    mx=num
-        except Exception as e:
-            print(e)
+    cleanlist=washNovelList(lists,nextChapter)
+    l=cleanlist[0]
+    mx=cleanlist[1]
 
-    for i in l:
-        print(i[1])
+    print("当前已读到%s" % str(nextChapter-1))
+    print("最新章节为%s" % mx)
 
-    # 构造待发送的文件名：该处理很不健壮！！
-    #作用： 第1章 测试章节 --> 1
-    start=l[0][1].split()[0][1:-1]
-    end=l[-1][1].split()[0][1:-1]
-
-    if start==end:
-        suf=start
+    if nextChapter>mx:
+        print("无未读章节")
+        return ""
     else:
-        suf=start+"-"+end
-    print(suf)
+        for i in l:
+            print(i[1])
 
-    filename=filename+"#"+suf+".txt"
-    chapterSpider(l,filename,limit=False)
-    sql.setAtChapter(novelname_chi,mx)
-    return filename
+        # 构造待发送的文件名：该处理很不健壮！！
+        start=cleanlist[2]
+        end=mx
+
+        if start==end:
+            suf=start
+        else:
+            suf=str(start)+"-"+str(end)
+        print(suf)
+
+        filename=filename+"#"+suf+".txt"
+        chapterSpider(l,filename,limit=False)
+        sql.setAtChapter(novelname_chi,mx)
+        return filename
 
 
 def getAllChapters(novelUrl):
     links=getAllChapterLinks(novelUrl)
-    filename=getNovelName_chi(novelUrl)
-    chapterSpider(links,filename)
+    #从第一章开始加载
+    cleanlist=washNovelList(links)
+    l=cleanlist[0]
+    mx=cleanlist[1]
+    novelname_chi=getNovelName_chi(novelUrl)
+    filename=getNovelName_en(novelUrl)
+    print("2 file>>>>>>>>>")
+    chapterSpider(l,filename+".txt",limit=False)
+    sql.setAtChapter(novelname_chi,mx)
+    return filename+".txt"
     
 
 def chapterSpider(links,filename,limit=True):
-    "若不解除限制，则只发送3章"
+    "若不解除限制，则只发送前30章 为测试方便,定为3章"
     if limit==True:
+        # times=30
         times=3
     else:
         times=1000000
@@ -160,7 +195,7 @@ def chapterSpider(links,filename,limit=True):
         #================
         try:
             url=link[0]
-            print(url)
+            print(link[1])
             content=getOneChapter(url)
             save2file(filename,content)
             # time.sleep(500)
@@ -170,24 +205,39 @@ def chapterSpider(links,filename,limit=True):
 
 def test():
     print("test:getAllChapterLinks")
-    getAllChapters("http://www.shumilou.co/xiuzhensiwannian")
+    getAllChapters("http://www.shumilou.co/heianxueshidai")
 
-    print("test:getNovelName_chi")
-    print(getNovelName_chi("http://www.shumilou.co/xiuzhensiwannian"))
+    # print("test:getNovelName_chi")
+    # print(getNovelName_chi("http://www.shumilou.co/xiuzhensiwannian"))
+
+    # print("""test:getNewChapters
+    #     设置当前阅读到:1294
+    #     """)
+    # sql.setAtChapter("修真四万年",1294)
+    # sql.show()
+    # filename=getNewChapters("http://www.shumilou.co/xiuzhensiwannian")
+    # sql.show()
+    # kindle.send2kindle(filename)
+
 
 def is_chi(self,text):
     "判断是否为中文"
     return all('\u4e00' <= char <= '\u9fff' for char in text)
 
-if __name__ == '__main__':
-    # test()
-    sql.setAtChapter("修真四万年",1294)
-    # sql.show()
-    filename=getNewChapters("http://www.shumilou.co/xiuzhensiwannian")
-    print(filename)
-    # sql.show()
-    # filename="修真四万年1295-1299.txt"
+#+++++++++++++++++++++++++++++++++++++++++
+def NewCapters2kindle(pageUrl):
+    filename=getNewChapters(pageUrl)
+    if filename!="":
+        kindle.send2kindle(filename)
+
+def AllCapters2kindle(pageUrl):
+    filename=getAllChapters(pageUrl)
     kindle.send2kindle(filename)
+
+if __name__ == '__main__':
+    test()
+
+
             
     
         

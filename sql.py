@@ -17,6 +17,7 @@ def createTable():
 		conn.close()
 
 def addNovel(bookname,bid=0,at=0):
+	print("add "+bookname)
 	try:
 		conn=sqlite3.connect("novel.db")
 		param=(bid,bookname,at,)
@@ -59,6 +60,10 @@ def show():
 
 def nextChapter(bookname):
 	"只用于查询下一个章节，只有当新的章节被推送成功时，才能修改at的值"
+	if isExits(bookname)==False:
+		print(bookname+" not exits,create one")
+		addNovel(bookname, bid=0, at=0)
+		return 1
 	try:
 		conn=sqlite3.connect("novel.db")
 		param=(bookname,)
@@ -70,22 +75,27 @@ def nextChapter(bookname):
 		return nowAt+1
 	except Exception as e:
 		print(e)
-		if isExits(bookname)==False:
-			addNovel(bookname, bid, at)
 	finally:
 		cursor.close()
 		conn.close()
 	
 def setAtChapter(bookname,num):
 	"设置最后推送的章节数"
-	conn=sqlite3.connect("novel.db")
-	param=(num,bookname,)
-	conn.execute("""
-		update readed 
-		set at=?
-		where novelname=?
-		""",param)
-	conn.commit()
+	if isExits(bookname)==False:
+		print(bookname+" not exits,create one")
+		addNovel(bookname, bid=0, at=num)
+	try:
+		conn=sqlite3.connect("novel.db")
+		param=(num,bookname,)
+		conn.execute("""
+			update readed 
+			set at=?
+			where novelname=?
+			""",param)
+		conn.commit()
+	except Exception as e:
+		print(e)
+
 	conn.close()
 
 def isExits(bookname):
@@ -93,12 +103,14 @@ def isExits(bookname):
 		conn=sqlite3.connect("novel.db")
 		param=(bookname,)
 		cursor=conn.execute("""
-			select count(*) form readed
+			select count(*) from readed
 			where novelname=?
 			""",param)
 		if cursor.fetchone()[0]==0:
+			print(bookname+" not in db")
 			return False
 		else:
+			print(bookname+" in db")
 			return True
 	except Exception as e:
 		print(e)
