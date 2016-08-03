@@ -5,10 +5,10 @@ from email.mime.multipart import MIMEMultipart
 from email.header import Header
 from email.utils import formatdate
 
-sender = 'cnxujunyu@126.com'
+sender   = 'cnxujunyu@126.com'
 receiver = 'cnxujunyu@kindle.cn'
-password= "xujunyu520"
-host= 'smtp.126.com'
+password = "xujunyu520"
+host     = 'smtp.126.com'
 
 def send2kindle(filename):
     #创建一个带附件的实例
@@ -24,9 +24,7 @@ def send2kindle(filename):
     att1["Content-Type"] = 'application/octet-stream'
     # att1["Content-Disposition"] = 'attachment; filename="%s"' % filename
     att1["Content-Disposition"] = "attachment;filename=\"%s\"" % Header(filename,'utf-8')
-    # att1["Content-Description"] = filename
     print(att1["Content-Disposition"])
-    # print(att1["Content-Description"])
     message.attach(att1)
 
     s=smtplib.SMTP_SSL(host)

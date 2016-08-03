@@ -8,8 +8,9 @@ links=[
 	"http://www.shumilou.co/zhongshengzhishenjixueba",
 ]
 if __name__ == '__main__':
-	# sql.setAtChapter("走进修仙",340)
-	sql.show()
+	
+	# sql.show()
+	# sql.setAtChapter("走进修仙","第三百四十二章 我们的风格")
 	# sql.setAtChapter("惊悚乐园","月初预告之1608")
 	# sql.setAtChapter("重生之神级学霸","第九百二十二章 案例出现")
 	# sql.setAtChapter("惊悚乐园","月初预告之1608")
