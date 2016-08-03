@@ -91,11 +91,12 @@ def save2file(filename,content):
     f.write(content)
     f.close()
 
-def washNovelList(lists,nextChapter=0):
+def washNovelList(lists):
     "返回所有未读章节，与最新章节数；默认当前阅读到第一章，即返回所有章节"
     l=[]
     mx=0
-    print(">>>>>>><<<<<<<<<<<"+str(nextChapter))
+    mi=1000000
+    print(">>>>>>><<<<<<<<<<<")
     """
     考虑到存在部分章节命名存在问题，但是章节都是连续的，所以在某章节存在问题时，可以使用前几章节来推导其章节号
     """
@@ -104,53 +105,24 @@ def washNovelList(lists,nextChapter=0):
     count_all=0
     count_right=1
 
-    fiveContinue=False
+    #某些章节出现从1到200又从1开始，如 1 2 3 4 …… 368 1 2 3 ……256 ，因为分了卷名之类，所以检测是否章节名循环
+    #如果进入新的循环，那么重置计数器mx=0 mi=1000000 newcircle=False 
+    newcircle=False
+    numOfChapterOne=0
+
 
     ERROR_RANGE=10
     ERROR_PROBABILITY=0.85
 
-    pattern_chi=re.compile(r'第[零一二三四五六七八九十百千两]+章')
-    pattern_d=re.compile(r'第\d+章')
+    
+    
     lists=lists[::-1]
     for item in lists:
         count_all+=1
         try:
             chapter=item[1]
-            
             print("wash "+chapter)
-
-            #若全数字
-            cha=pattern_d.search(chapter)
-            if cha:
-                rs=cha.group()[1:-1]
-                if len(str(rs))>=1:
-                    num=int(rs)
-            #若其他
-            else: 
-                #中文标题:第一百章
-                match_chi=pattern_chi.search(chapter)
-                if match_chi:
-                    chapter=match_chi.group()
-                    pat=re.compile(r'[零一二三四五六七八九十百千两]+')
-                    match_chi=pat.findall(chapter)
-                    mxlen=0
-                    for i in match_chi:
-                        if len(i)>=mxlen:
-                            chapter=i
-                            mxlen=len(i)
-                    if "两" in chapter:
-                        chapter=chapter.replace("两","二")
-                    try:
-                        num=cn2.c2n(chapter)
-                    #如果无法从中文转为数字，说明章节名混入了奇怪的字符
-                    except Exception as e:
-                        print(e)
-                        string=""
-                        for i in match_chi:
-                            string+=i
-                        num=cn2.c2n(string)
-                        print("warning:当前章节[%s]:编号无法解析，已智能设置章节号为:%i" % (item[1],num))
-            
+            num=getNumOfTitle(chapter)
             # #如果是连续的章节
             # if num-prev==1:
             #     print("连续的")
@@ -164,8 +136,6 @@ def washNovelList(lists,nextChapter=0):
                 prev=num
                 num=tmp+1
                 
-
-
             # #如果相差太大，如9->15,已经影响到阅读体验，建议更换源网站
             # else:
             #     print("right:"+str(count_right))
@@ -182,66 +152,141 @@ def washNovelList(lists,nextChapter=0):
 
             print("num:%d prev:%d"%(num,prev-1))
 
-            if num>mx:
-                mx=num
-            if num>=nextChapter:
-                l.append(item)
+            #当前为第一章
+            if 1==num:
+                #若第一章的计数不为0，说明存在多个第一章 即进入新的【卷】
+                if numOfChapterOne!=0:
+                    newcircle=True
+                    numOfChapterOne+=1
+            if not newcircle:
+                if num>mx:
+                    mx=num
+                if num<mi:
+                    mi=num
+            else:
+                mx=0
+                mi=1000000
+                newcircle=False
 
+            l.append(item)
         except Exception as e:
             print(e)
     print(">>"*20)
-    print(mx)
+    print("max:%d min:%d" %(mx,mi))
 
-    start=nextChapter
+    start=mi
     end=mx
-    l=l[::-1]
     for i in l:
         print(i)
-    return l,end,start
+    return l,start,end,mx,mi
+
+def getNumOfTitle_chi(chapter):
+    #中文标题:如第一百章
+    num=-1
+    pattern_chi=re.compile(r'第[零一二三四五六七八九十百千两]+章')
+    match_chi=pattern_chi.search(chapter)
+    if match_chi:
+        chapter=match_chi.group()
+        pat=re.compile(r'[零一二三四五六七八九十百千两]+')
+        match_chi=pat.findall(chapter)
+        mxlen=0
+        for i in match_chi:
+            if len(i)>=mxlen:
+                chapter=i
+                mxlen=len(i)
+        if "两" in chapter:
+            chapter=chapter.replace("两","二")
+        try:
+            num=cn2.c2n(chapter)
+        #如果无法从中文转为数字，说明章节名混入了奇怪的字符
+        except Exception as e:
+            print(e)
+            string=""
+            for i in match_chi:
+                string+=i
+            num=cn2.c2n(string)
+            print("warning:当前章节[%s]:编号无法解析，已智能设置章节号为:%i" % (item[1],num))
+    return num
+
+def getNumOfTitle_en(chapter):
+    num=-1
+    pattern_d=re.compile(r'第\d+章')
+    cha=pattern_d.search(chapter)
+    if cha:
+        rs=cha.group()[1:-1]
+        if len(str(rs))>=1:
+            num=int(rs)
+    return num
+
+def getNumOfTitle(chapter):
+    num=-1
+    #若全数字
+    pattern_d=re.compile(r'第\d+章')
+    cha=pattern_d.search(chapter)
+    if cha:
+        num=getNumOfTitle_en(chapter)
+    #若其他
+    else: 
+        num=getNumOfTitle_chi(chapter)
+    return num
 
 def getNewChapters(pageUrl,charset="en"):
     lists=getAllChapterLinks(pageUrl)
     novelname_chi=getNovelName_chi(pageUrl)
+    #当前读到了
+    nowat=sql.readAtChapter(novelname_chi)
 
+    #设置文件名语言en or chi
     if charset=="en":
         print("using en novelname")
         filename=getNovelName_en(pageUrl)
     else:
         filename=novelname_chi
 
-    #获取数据库的记录
-    nextChapter=sql.nextChapter(novelname_chi)
-
-    #尝试对标题进行处理
-    cleanlist=washNovelList(lists,nextChapter)
-    l=cleanlist[0]
-    mx=cleanlist[1]
-
-    print("当前已读到%s" % str(nextChapter-1))
-    print("最新章节为%s" % mx)
-
-    if nextChapter>mx:
-        print("无未读章节")
+    
+    l=[]
+    isnew=False
+    #将新章节的url和name放入l
+    for i in lists:
+        if i[1]==nowat:
+            isnew=True
+            continue
+        if isnew:
+            if not sql.hasChapter(novelname_chi,i[1]):
+                l.append(i)
+                sql.addChapter(novelname_chi,i[1])
+    
+    try:
+        newest=l[-1][1]
+        print("当前已读到%s" % nowat)
+        print("最新章节为%s" % newest)
+    except Exception as e:
+        print("无新章节")
         return ""
+
+    
+
+    # 构造待发送的文件名：该处理很不健壮！！
+    cleanlist=washNovelList(l)
+    start=getNumOfTitle(nowat)+1
+    end=cleanlist[2]
+    #构造文件名
+    suf=suffix(start,end)
+    filename=filename+"#"+suf+".txt"
+    #抓取l内的文章
+    chapterSpider(l,filename,limit=False)
+    print("下载文件成功")
+    sql.setAtChapter(novelname_chi,newest)
+    return filename
+
+def suffix(start,end):
+    "start(int) end(int) 构造待发送的文件名后缀：230-235 表示从230章到235章"
+    suf=""
+    if start==end:
+        suf=start
     else:
-        for i in l:
-            print(i[1])
-
-        # 构造待发送的文件名：该处理很不健壮！！
-        start=cleanlist[2]
-        end=mx
-
-        if start==end:
-            suf=start
-        else:
-            suf=str(start)+"-"+str(end)
-        print(suf)
-
-        filename=filename+"#"+suf+".txt"
-        chapterSpider(l,filename,limit=False)
-        sql.setAtChapter(novelname_chi,mx)
-        return filename
-
+        suf=str(start)+"-"+str(end)
+    return suf
 
 def getAllChapters(novelUrl):
     links=getAllChapterLinks(novelUrl)
@@ -315,8 +360,9 @@ def AllCapters2kindle(pageUrl):
 if __name__ == '__main__':
     # test()
     sql.show()
-    sql.setAtChapter("走进修仙",340)
-    getNewChapters("http://www.shumilou.co/zoujinxiuxian")
+    # sql.setAtChapter("走进修仙","第三百四十二章 我们的风格")
+    # sql.setAtChapter("修真四万年","第1300章 璀璨闪耀！")
+    getNewChapters("http://www.shumilou.co/xiuzhensiwannian")
 
 
             
