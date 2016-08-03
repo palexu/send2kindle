@@ -27,7 +27,6 @@ def getAllChapterLinks(pageUrl):
     bsObj = BeautifulSoup(html.text,"html.parser")
 
     novelList=bsObj.findAll("li")
-
     linksList=[]
     regx=pageUrl.replace("http://www.shumilou.co","")
     pattern=re.compile(regx)
@@ -53,7 +52,6 @@ def getNovelName_chi(pageUrl):
 
 def getNovelName_en(pageUrl):
     name=pageUrl.replace("http://www.shumilou.co/","")
-    print(name)
     return name
 
 #测试用：打印链接列表
@@ -97,9 +95,7 @@ def washNovelList(lists):
     mx=0
     mi=1000000
     print(">>>>>>><<<<<<<<<<<")
-    """
-    考虑到存在部分章节命名存在问题，但是章节都是连续的，所以在某章节存在问题时，可以使用前几章节来推导其章节号
-    """
+    #考虑到存在部分章节命名存在问题，但是章节都是连续的，所以在某章节存在问题时，可以使用前几章节来推导其章节号
     prev=0
 
     count_all=0
@@ -110,47 +106,22 @@ def washNovelList(lists):
     newcircle=False
     numOfChapterOne=0
 
-
     ERROR_RANGE=10
     ERROR_PROBABILITY=0.85
 
-    
-    
     lists=lists[::-1]
     for item in lists:
         count_all+=1
         try:
             chapter=item[1]
-            print("wash "+chapter)
+            # print("wash "+chapter)
             num=getNumOfTitle(chapter)
-            # #如果是连续的章节
-            # if num-prev==1:
-            #     print("连续的")
-            #     count_right+=1
-            #     prev+=1
             
             #不连续，但相差不大,并且到目前为止的章节连续性较好，尝试使用当前章节号
-            print("num:%d prev:%d"%(num,prev-1))
             if abs(num-prev)>=ERROR_RANGE:
                 tmp=prev
                 prev=num
                 num=tmp+1
-                
-            # #如果相差太大，如9->15,已经影响到阅读体验，建议更换源网站
-            # else:
-            #     print("right:"+str(count_right))
-            #     print("all:"+str(count_all))
-            #     print(count_right/count_all)
-            #     if count_right/count_all>=ERROR_PROBABILITY:
-            #         num=prev+1
-            #         prev=num
-            #         print("waring:当前章节[%s]:编号存在较大问题，已智能设置章节号为:%i" % (item[1],num))
-            #     else:
-            #         print("warning:该源网站章节编号问题较大，建议更换源")
-            #         num=prev+1
-            #         prev=num
-
-            print("num:%d prev:%d"%(num,prev-1))
 
             #当前为第一章
             if 1==num:
@@ -176,8 +147,8 @@ def washNovelList(lists):
 
     start=mi
     end=mx
-    for i in l:
-        print(i)
+    # for i in l:
+    #     print(i)
     return l,start,end,mx,mi
 
 def getNumOfTitle_chi(chapter):
@@ -243,7 +214,6 @@ def getNewChapters(pageUrl,charset="en"):
     else:
         filename=novelname_chi
 
-    
     l=[]
     isnew=False
     #将新章节的url和name放入l
@@ -263,8 +233,6 @@ def getNewChapters(pageUrl,charset="en"):
     except Exception as e:
         print("无新章节")
         return ""
-
-    
 
     # 构造待发送的文件名：该处理很不健壮！！
     cleanlist=washNovelList(l)
@@ -300,7 +268,6 @@ def getAllChapters(novelUrl):
     chapterSpider(l,filename+".txt",limit=False)
     sql.setAtChapter(novelname_chi,mx)
     return filename+".txt"
-    
 
 def chapterSpider(links,filename,limit=True):
     "若不解除限制，则只发送前30章 为测试方便,定为3章"
@@ -317,7 +284,7 @@ def chapterSpider(links,filename,limit=True):
         #================
         try:
             url=link[0]
-            print(link[1])
+            print("download:%s" %link[1])
             content=getOneChapter(url)
             save2file(filename,content)
             # time.sleep(500)
