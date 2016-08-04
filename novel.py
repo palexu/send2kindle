@@ -21,7 +21,9 @@ headers={"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Ge
         }
 
 def getAllChapterLinks(pageUrl):
-    "return linksList=[link,name]"
+    '''
+    return linksList=[link,name]
+    '''
     print("getAllChapterLinks>>>>>>>>>>:"+pageUrl)
     html = session.get(pageUrl,headers=headers)
     bsObj = BeautifulSoup(html.text,"html.parser")
@@ -51,6 +53,10 @@ def getNovelName_chi(pageUrl):
     return name
 
 def getNovelName_en(pageUrl):
+    '''
+    >>> getNovelName_en("http://www.shumilou.co/test")
+    'test'
+    '''
     name=pageUrl.replace("http://www.shumilou.co/","")
     return name
 
@@ -152,34 +158,44 @@ def washNovelList(lists):
     return l,start,end,mx,mi
 
 def getNumOfTitle_chi(chapter):
-    #中文标题:如第一百章
+    '''
+    中文标题:如第一百章
+
+    >>> getNumOfTitle_chi("第两百零一章")
+    201
+    >>> getNumOfTitle_chi("第两百测零试一章")
+    201
+    >>> getNumOfTitle_chi("两百")
+    -1
+    '''
     num=-1
-    pattern_chi=re.compile(r'第[零一二三四五六七八九十百千两]+章')
+    pattern_chi=re.compile(r'第.+章')
     match_chi=pattern_chi.search(chapter)
     if match_chi:
-        chapter=match_chi.group()
-        pat=re.compile(r'[零一二三四五六七八九十百千两]+')
-        match_chi=pat.findall(chapter)
-        mxlen=0
-        for i in match_chi:
-            if len(i)>=mxlen:
-                chapter=i
-                mxlen=len(i)
+        chapter=match_chi.group()[1:-1]
+
         if "两" in chapter:
             chapter=chapter.replace("两","二")
+
         try:
             num=cn2.c2n(chapter)
         #如果无法从中文转为数字，说明章节名混入了奇怪的字符
         except Exception as e:
-            print(e)
             string=""
+            pat=re.compile(r'[零一二三四五六七八九十百千两]+')
+            match_chi=pat.findall(chapter)
             for i in match_chi:
                 string+=i
             num=cn2.c2n(string)
-            print("warning:当前章节[%s]:编号无法解析，已智能设置章节号为:%i" % (item[1],num))
     return num
 
-def getNumOfTitle_en(chapter):
+def getNumOfTitle_d(chapter):
+    '''
+    数字标题:如第100章
+
+    >>> getNumOfTitle_d("第1029章")
+    1029
+    '''
     num=-1
     pattern_d=re.compile(r'第\d+章')
     cha=pattern_d.search(chapter)
@@ -190,12 +206,22 @@ def getNumOfTitle_en(chapter):
     return num
 
 def getNumOfTitle(chapter):
+    '''
+    获得章节编号
+
+    >>> getNumOfTitle("第1029章")
+    1029
+    >>> getNumOfTitle("第两百零一章")
+    201
+    >>> getNumOfTitle("第两百测零试一章")
+    201
+    '''
     num=-1
     #若全数字
     pattern_d=re.compile(r'第\d+章')
     cha=pattern_d.search(chapter)
     if cha:
-        num=getNumOfTitle_en(chapter)
+        num=getNumOfTitle_d(chapter)
     #若其他
     else: 
         num=getNumOfTitle_chi(chapter)
@@ -248,7 +274,12 @@ def getNewChapters(pageUrl,charset="en"):
     return filename
 
 def suffix(start,end):
-    "start(int) end(int) 构造待发送的文件名后缀：230-235 表示从230章到235章"
+    '''
+    start(int) end(int) 构造待发送的文件名后缀：230-235 表示从230章到235章
+
+    >>> suffix(23,90)
+    '23-90'
+    '''
     suf=""
     if start==end:
         suf=start
@@ -291,11 +322,10 @@ def chapterSpider(links,filename,limit=True):
         except Exception as e:
             print(e)
 
-
-def test():
-    print("test: getAllChapterLinks && washNovelList ")
-    links=getAllChapterLinks("http://www.shumilou.co/zoujinxiuxian")
-    washNovelList(links)
+# def test():
+    # print("test: getAllChapterLinks && washNovelList ")
+    # links=getAllChapterLinks("http://www.shumilou.co/zoujinxiuxian")
+    # washNovelList(links)
 
     # print("test:getNovelName_chi")
     # print(getNovelName_chi("http://www.shumilou.co/xiuzhensiwannian"))
@@ -325,11 +355,9 @@ def AllCapters2kindle(pageUrl):
     kindle.send2kindle(filename)
 
 if __name__ == '__main__':
-    # test()
-    sql.show()
-    # sql.setAtChapter("走进修仙","第三百四十二章 我们的风格")
-    # sql.setAtChapter("修真四万年","第1300章 璀璨闪耀！")
-    getNewChapters("http://www.shumilou.co/xiuzhensiwannian")
+    import doctest
+    doctest.testmod(verbose=True)
+
 
 
             
