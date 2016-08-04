@@ -102,7 +102,7 @@ def readAtChapter(bookname):
 		traceback.print_exc()
 		# print(e)
 	finally:
-		cursor.close()
+		# cursor.close()
 		conn.close()
 	
 def setAtChapter(bookname,readAt):
