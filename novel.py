@@ -24,7 +24,8 @@ def getAllChapterLinks(pageUrl):
     '''
     return linksList=[link,name]
     '''
-    print("getAllChapterLinks>>>>>>>>>>:"+pageUrl)
+    print("\n"+"#"*30+"send2kindle"+"#"*30)
+    print("正在获取章节列表>>>"+pageUrl)
     html = session.get(pageUrl,headers=headers)
     bsObj = BeautifulSoup(html.text,"html.parser")
 
@@ -42,7 +43,8 @@ def getAllChapterLinks(pageUrl):
                 l=["http://www.shumilou.co"+link,name]
                 linksList.append(l)
         except Exception as e:
-            print("getAllChapterLinks:error  "+str(e))
+            # print("getAllChapterLinks:error  "+str(e))
+            pass
     linksList=linksList[:-1]
     return linksList
 
@@ -100,12 +102,9 @@ def washNovelList(lists):
     l=[]
     mx=0
     mi=1000000
-    print(">>>>>>><<<<<<<<<<<")
+    print(">"*5+"正在处理章节信息"+"<"*5)
     #考虑到存在部分章节命名存在问题，但是章节都是连续的，所以在某章节存在问题时，可以使用前几章节来推导其章节号
     prev=0
-
-    count_all=0
-    count_right=1
 
     #某些章节出现从1到200又从1开始，如 1 2 3 4 …… 368 1 2 3 ……256 ，因为分了卷名之类，所以检测是否章节名循环
     #如果进入新的循环，那么重置计数器mx=0 mi=1000000 newcircle=False 
@@ -115,47 +114,50 @@ def washNovelList(lists):
     ERROR_RANGE=10
     ERROR_PROBABILITY=0.85
 
-    lists=lists[::-1]
-    for item in lists:
-        count_all+=1
-        try:
-            chapter=item[1]
-            # print("wash "+chapter)
-            num=getNumOfTitle(chapter)
-            
-            #不连续，但相差不大,并且到目前为止的章节连续性较好，尝试使用当前章节号
-            if abs(num-prev)>=ERROR_RANGE:
-                tmp=prev
-                prev=num
-                num=tmp+1
+    print("待处理章节数%d" % len(lists))
+    if len(lists)==1:
+        num=getNumOfTitle(lists[0][1])
+        mx=num
+        mi=num
+    else:
+        for item in lists:
+            try:
+                chapter=item[1]
+                # print("wash "+chapter)
+                num=getNumOfTitle(chapter)
+                
+                #不连续，但相差不大,并且到目前为止的章节连续性较好，尝试使用当前章节号
+                if abs(num-prev)>=ERROR_RANGE:
+                    tmp=prev
+                    prev=num
+                    num=tmp+1
 
-            #当前为第一章
-            if 1==num:
-                #若第一章的计数不为0，说明存在多个第一章 即进入新的【卷】
-                if numOfChapterOne!=0:
-                    newcircle=True
-                    numOfChapterOne+=1
-            if not newcircle:
-                if num>mx:
-                    mx=num
-                if num<mi:
-                    mi=num
-            else:
-                mx=0
-                mi=1000000
-                newcircle=False
+                #当前为第一章
+                if 1==num:
+                    #若第一章的计数不为0，说明存在多个第一章 即进入新的【卷】
+                    if numOfChapterOne!=0:
+                        newcircle=True
+                        numOfChapterOne+=1
+                if not newcircle:
+                    if num>=mx:
+                        mx=num
+                    if num<=mi:
+                        mi=num
+                else:
+                    mx=0
+                    mi=1000000
+                    newcircle=False
 
-            l.append(item)
-        except Exception as e:
-            print(e)
-    print(">>"*20)
-    print("max:%d min:%d" %(mx,mi))
-
+                l.append(item)
+            except Exception as e:
+                print(e)
+    # print(">>"*20)
+    print("max:%d min:%d" % (mx,mi))
     start=mi
     end=mx
     # for i in l:
     #     print(i)
-    return l,start,end,mx,mi
+    return l,start,end
 
 def getNumOfTitle_chi(chapter):
     '''
@@ -235,7 +237,7 @@ def getNewChapters(pageUrl,charset="en"):
 
     #设置文件名语言en or chi
     if charset=="en":
-        print("using en novelname")
+        # print("using en novelname")
         filename=getNovelName_en(pageUrl)
     else:
         filename=novelname_chi
@@ -251,7 +253,8 @@ def getNewChapters(pageUrl,charset="en"):
             if not sql.hasChapter(novelname_chi,i[1]):
                 l.append(i)
                 sql.addChapter(novelname_chi,i[1])
-    
+
+    print("小说标题:%s" % novelname_chi)
     try:
         newest=l[-1][1]
         print("当前已读到%s" % nowat)
@@ -262,14 +265,14 @@ def getNewChapters(pageUrl,charset="en"):
 
     # 构造待发送的文件名：该处理很不健壮！！
     cleanlist=washNovelList(l)
-    start=getNumOfTitle(nowat)+1
+    start=cleanlist[1]
     end=cleanlist[2]
     #构造文件名
     suf=suffix(start,end)
     filename=filename+"#"+suf+".txt"
     #抓取l内的文章
     chapterSpider(l,filename,limit=False)
-    print("下载文件成功")
+    print("下载文件成功...")
     sql.setAtChapter(novelname_chi,newest)
     return filename
 
@@ -282,7 +285,7 @@ def suffix(start,end):
     '''
     suf=""
     if start==end:
-        suf=start
+        suf=str(start)
     else:
         suf=str(start)+"-"+str(end)
     return suf
@@ -355,10 +358,10 @@ def AllCapters2kindle(pageUrl):
     kindle.send2kindle(filename)
 
 if __name__ == '__main__':
-    import doctest
-    doctest.testmod(verbose=True)
-
-
+    # import doctest
+    # doctest.testmod(verbose=True)
+    sql.setAtChapter("修真四万年","第1306章 文明")
+    NewCapters2kindle("http://www.shumilou.co/xiuzhensiwannian")
 
             
     

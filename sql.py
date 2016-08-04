@@ -134,10 +134,10 @@ def isBookExits(bookname):
 			where bookname=?
 			""",param)
 		if cursor.fetchone()[0]==0:
-			print(bookname+" not in db")
+			# print(bookname+" not in db")
 			return False
 		else:
-			print(bookname+" in db")
+			# print(bookname+" in db")
 			return True
 	except Exception as e:
 		traceback.print_exc()

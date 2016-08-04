@@ -36,7 +36,7 @@ def getAnswer(answerID):
 	#获取的标题
 
 	filename_old=title.string.strip()
-	print filename_old
+	print filename_old.encode("utf-8")
 	filename = re.sub('[\/:*?"<>|]','-',filename_old)
 	#用来保存内容的文件名，因为文件名不能有一些特殊符号，所以使用正则表达式过滤掉
 	

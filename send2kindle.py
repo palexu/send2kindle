@@ -24,14 +24,13 @@ def send2kindle(filename):
     att1["Content-Type"] = 'application/octet-stream'
     # att1["Content-Disposition"] = 'attachment; filename="%s"' % filename
     att1["Content-Disposition"] = "attachment;filename=\"%s\"" % Header(filename,'utf-8')
-    print(att1["Content-Disposition"])
     message.attach(att1)
 
     s=smtplib.SMTP_SSL(host)
     s.login(sender,password)
     s.sendmail(sender, receiver, message.as_string())
     s.close()
-    print("邮件发送成功")
+    print("文件发送成功...")
 
 if __name__ == '__main__':
     print("test:send2kindle.py send2kindle()")
