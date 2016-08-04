@@ -25,7 +25,7 @@ def getAllChapterLinks(pageUrl):
     return linksList=[link,name]
     '''
     print("\n"+"#"*30+"send2kindle"+"#"*30)
-    print("正在获取章节列表>>>"+pageUrl)
+    print("正在获取章节列表".encode("utf-8")+">>>"+pageUrl)
     html = session.get(pageUrl,headers=headers)
     bsObj = BeautifulSoup(html.text,"html.parser")
 
@@ -323,7 +323,7 @@ def chapterSpider(links,filename,limit=True):
             save2file(filename,content)
             # time.sleep(500)
         except Exception as e:
-            print(e)
+            traceback.print_exc()
 
 # def test():
     # print("test: getAllChapterLinks && washNovelList ")
@@ -360,8 +360,10 @@ def AllCapters2kindle(pageUrl):
 if __name__ == '__main__':
     # import doctest
     # doctest.testmod(verbose=True)
-    sql.setAtChapter("修真四万年","第1306章 文明")
-    NewCapters2kindle("http://www.shumilou.co/xiuzhensiwannian")
+    sql.setAtChapter("惊悚乐园","月初预告之1608")
+    sql.test_delChapter("惊悚乐园")
+    # sql.setAtChapter("修真四万年","第1306章 文明")
+    # NewCapters2kindle("http://www.shumilou.co/xiuzhensiwannian")
 
             
     

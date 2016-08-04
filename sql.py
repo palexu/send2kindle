@@ -178,5 +178,21 @@ def hasChapter(bookname,chaTitle):
 	finally:
 		# cursor.close()
 		conn.close()
+
+def test_delChapter(bookname):
+	try:
+		conn=sqlite3.connect("novel.db")
+		param=(bookname,)
+		conn.execute("""
+			delete from chapters
+			where bookname=?
+			""",param)
+		conn.commit()
+	except Exception as e:
+		traceback.print_exc()
+	finally:
+		# cursor.close()
+		conn.close()
+
 if __name__ == '__main__':
 	createTableChapters()

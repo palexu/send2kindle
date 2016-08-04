@@ -1,5 +1,7 @@
+#coding=utf-8
 import novel
 import sql
+
 links=[
 	"http://www.shumilou.co/xiuzhensiwannian",
 	"http://www.shumilou.co/jingsongleyuan",
