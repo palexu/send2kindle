@@ -25,7 +25,7 @@ def getAllChapterLinks(pageUrl):
     return linksList=[link,name]
     '''
     print("\n"+"#"*30+"send2kindle"+"#"*30)
-    print("正在获取章节列表".encode("utf-8")+">>>"+pageUrl)
+    print(u'正在获取章节列表'+">>>"+pageUrl)
     html = session.get(pageUrl,headers=headers)
     bsObj = BeautifulSoup(html.text,"html.parser")
 
@@ -92,10 +92,13 @@ def getOneChapter(link):
 
 def save2file(filename,content):
     #保存为电子书文件
-    filename=filename
-    f=open(filename,'a')
-    f.write(content)
-    f.close()
+    try:
+        filename=filename
+        f=open(filename,'at',encoding="utf-8")
+        f.write(content)
+        f.close()
+    except Exception as e:
+        traceback.print_exc()
 
 def washNovelList(lists):
     "返回所有未读章节，与最新章节数；默认当前阅读到第一章，即返回所有章节"
@@ -358,10 +361,10 @@ def AllCapters2kindle(pageUrl):
     kindle.send2kindle(filename)
 
 if __name__ == '__main__':
-    # import doctest
-    # doctest.testmod(verbose=True)
-    sql.setAtChapter("惊悚乐园","月初预告之1608")
-    sql.test_delChapter("惊悚乐园")
+    import doctest
+    doctest.testmod(verbose=True)
+    # sql.setAtChapter("惊悚乐园","月初预告之1608")
+    # sql.test_delChapter("惊悚乐园")
     # sql.setAtChapter("修真四万年","第1306章 文明")
     # NewCapters2kindle("http://www.shumilou.co/xiuzhensiwannian")
 
