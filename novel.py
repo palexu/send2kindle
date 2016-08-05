@@ -24,8 +24,7 @@ def getAllChapterLinks(pageUrl):
     '''
     return linksList=[link,name]
     '''
-    print("\n"+"#"*30+"send2kindle"+"#"*30)
-    print(u'正在获取章节列表'+">>>"+pageUrl)
+    print('->'+pageUrl)
     html = session.get(pageUrl,headers=headers)
     bsObj = BeautifulSoup(html.text,"html.parser")
 
@@ -79,7 +78,7 @@ def getOneChapter(link):
 
     content=bsObj.findAll("p")
     title=bsObj.find("div",{"class":"title"}).h2.get_text()
-    novel=""+title+"\n"
+    novel="$"*30+"\n>>>"+title+"<<<\n"
 
     for p in content:
         match=pattern.search(p.get_text())
@@ -87,6 +86,7 @@ def getOneChapter(link):
             pass
         else:
             novel=novel+p.get_text()
+
     novel=novel+"\n\n"
     return novel
 
@@ -232,7 +232,7 @@ def getNumOfTitle(chapter):
         num=getNumOfTitle_chi(chapter)
     return num
 
-def getNewChapters(pageUrl,charset="en"):
+def getNewChapters(pageUrl,checknum,charset="en"):
     lists=getAllChapterLinks(pageUrl)
     novelname_chi=getNovelName_chi(pageUrl)
     #当前读到了
@@ -247,6 +247,7 @@ def getNewChapters(pageUrl,charset="en"):
 
     l=[]
     isnew=False
+
     #将新章节的url和name放入l
     for i in lists:
         if i[1]==nowat:
@@ -256,6 +257,11 @@ def getNewChapters(pageUrl,charset="en"):
             if not sql.hasChapter(novelname_chi,i[1]):
                 l.append(i)
                 sql.addChapter(novelname_chi,i[1])
+
+    #checknum=0 一有新的章节就更新 checknum=3 累积三章以上再推送
+    if checknum!=0 and len(l)!=0 and checknum>len(l):
+        print("当前小说更新了%d章，[%d/%d]，暂不发送" %(len(l),len(l),checknum))
+        return ""
 
     print("小说标题:%s" % novelname_chi)
     try:
@@ -351,8 +357,8 @@ def is_chi(self,text):
     return all('\u4e00' <= char <= '\u9fff' for char in text)
 
 #+++++++++++++++++++++++++++++++++++++++++
-def NewCapters2kindle(pageUrl):
-    filename=getNewChapters(pageUrl)
+def NewCapters2kindle(pageUrl,checknum=3):
+    filename=getNewChapters(pageUrl,checknum)
     if filename!="":
         kindle.send2kindle(filename)
 
