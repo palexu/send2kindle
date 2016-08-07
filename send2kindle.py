@@ -18,7 +18,7 @@ def send2kindle(filename):
     message['to'] = receiver
     message["Date"] = formatdate(localtime=True)
 
-    message.attach(MIMEText('你好，这是我的附件，请查收~ ', 'plain', 'utf-8'))
+    message.attach(MIMEText('你好呀，这是我要发送的附件，请注意查收~\n祝健康 ', 'plain', 'utf-8'))
     att1 = MIMEText(open(filename, "r").read(), _charset = "utf-8")
     # att1 = MIMEText(open(filename, 'rb').read(), 'base64', 'utf-8')
     att1["Content-Type"] = 'application/octet-stream'
