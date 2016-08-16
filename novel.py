@@ -240,14 +240,10 @@ def getNewChapters(pageUrl,checknum,charset="en"):
         if isnew:
             if not sql.hasChapter(novelname_chi,i[1]):
                 l.append(i)
-                sql.addChapter(novelname_chi,i[1])
-
-    #checknum=0 一有新的章节就更新 checknum=3 累积三章以上再推送
-    if checknum!=0 and len(l)!=0 and checknum>len(l):
-        print("[暂不发送]:当前小说更新了%d章...[%d/%d]" %(len(l),len(l),checknum))
-        return ""
+                
 
     print("小说标题:%s" % novelname_chi)
+    #checknum=0 一有新的章节就更新 checknum=3 累积三章以上再推送
     try:
         newest=l[-1][1]
         print("当前已读到%s" % nowat)
@@ -255,6 +251,12 @@ def getNewChapters(pageUrl,checknum,charset="en"):
     except Exception as e:
         print("无新章节")
         return ""
+    if checknum!=0 and len(l)!=0 and checknum>len(l):
+        print("[暂不发送]:当前小说更新了%d章...[%d/%d]" %(len(l),len(l),checknum))
+        return ""
+    else:
+        for i in l:
+            sql.addChapter(novelname_chi,i[1])
 
     # 构造待发送的文件名：该处理很不健壮！！
     cleanlist=washNovelList(l)
