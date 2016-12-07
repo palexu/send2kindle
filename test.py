@@ -5,6 +5,7 @@ import logging
 import Kmail
 import sql
 import Novel
+import unittest.mock as mock
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -12,6 +13,7 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 
+@unittest.skipIf(True, "only test when email cant run")
 class Send2KindleTest(unittest.TestCase):
     def testSend(self):
         return
@@ -24,12 +26,13 @@ class Send2KindleTest(unittest.TestCase):
         f.write(newfc)
         f.close()
         mail = Kmail.Mail()
-        mail.send2kindle([newf,])
+        mail.set_receiver("1098672878@qq.com")
+        mail.send2kindle([newf, ])
 
         os.remove(newf)
 
     def test126(self):
-        return
+        # return
         logging.info("test send")
 
         newf = "奇怪.txt"
@@ -39,6 +42,7 @@ class Send2KindleTest(unittest.TestCase):
         f.write(newfc)
         f.close()
         mail = Kmail.Mail()
+        mail.set_receiver("1098672878@qq.com")
         mail.init_host_config("126")
         mail.send2kindle([newf, ])
 
@@ -55,6 +59,7 @@ class Send2KindleTest(unittest.TestCase):
         f.write(newfc)
         f.close()
         mail = Kmail.Mail()
+        mail.set_receiver("1098672878@qq.com")
         mail.init_host_config("163")
         mail.send2kindle([newf, ])
 
@@ -62,8 +67,8 @@ class Send2KindleTest(unittest.TestCase):
 
 
 class ScrapyTest(unittest.TestCase):
-    def testScrapy(self):
-        # return
+    @mock.patch('Kmail.Mail')
+    def testScrapy(self, mock_Mail):
         settings = [
             ["http://www.shumilou.co/zhongshengzhishenjixueba", 0],
             ["http://www.shumilou.co/xiuzhensiwannian", 0],
@@ -73,9 +78,12 @@ class ScrapyTest(unittest.TestCase):
         sql.setAtChapter("走进修仙", "第一百五十七章 问题")
         sql.setAtChapter("修真四万年", "第1697章 召唤，降临！")
         sql.test_delChapter()
+
         service = Novel.Service()
+        service.mail = mock_Mail()
         service.mail.set_receiver("1098672878@qq.com")
         service.mail.init_host_config('163')
+
         for link in settings:
             service.add_novel(link)
         service.all_novels_latest_updates_2_kindle()
@@ -89,4 +97,4 @@ class SpiderTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(warnings='ignore')
