@@ -20,11 +20,11 @@ class Title:
         :param chapter:
         :return:
 
-        >>> getNumOfTitle_chi("第两百零一章")
+        >>> self.__chinese("第两百零一章")
         201
-        >>> getNumOfTitle_chi("第两百测零试一章")
+        >>> self.__chinese("第两百测零试一章")
         201
-        >>> getNumOfTitle_chi("两百")
+        >>> self.__chinese("两百")
         -1
         """
         num = -1
