@@ -1,6 +1,7 @@
 *.sh
 *.db
 *.log
+log
 *.pyc
 *.txt
 .idea/*
