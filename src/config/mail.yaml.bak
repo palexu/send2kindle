@@ -1,12 +1,13 @@
 mail:
-    mailhost:
-        163:
-            sender: 'xxxxxxxxxxxx@163.com'
-            password: "xxxxxxxxxxxxx"
+    hostconf:
+        '163':
+            sender: ''
+            password: ''
             host: 'smtp.163.com'
 
-    receiver: 'xxxxxxxxx@kindle.cn'
-    reportReceiver: 'xxxxxxxxx@qq.com'
+
+    receiver: ''
+    reportReceiver: ''
     init_host_config: '163'
     subject: ''
     msgcontent: ''
