@@ -7,36 +7,14 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import yaml
 
-logging.config.fileConfig("../config/logging.conf")
-
-
-# sender = 'cnxujunyu@126.com'
-# receiver = 'cnxujunyu@kindle.cn'
-# reportReceiver = '1098672878@qq.com√'
-# password = "xujunyu520"
-# host = 'smtp.126.com'
-
-
-# sender = '15957180610@163.com'
-# # receiver = 'cnxujunyu@kindle.cn'
-# receiver = '1098672878@qq.com'
-# reportReceiver = '1098672878@qq.com'
-# password = "xujunyu520"
-# host = 'smtp.163.com'
-
-
-# sender   = 'cnxujunyu@sina.com'
-# receiver = 'cnxujunyu@kindle.cn'
-# reportReceiver='1098672878@qq.com'
-# password = "125108xu"
-# host     = 'smtp.sina.com'
-# 由于长期使用同一个内容，很容易被认为是垃圾邮件，所以需要定期修改内容
+logging.config.fileConfig("config/logging.conf")
 
 class Mail:
     def __init__(self):
-        with open("../config/config.yaml") as f:
-            config = yaml.load(f)
-        self.hostconf = config["mail"]
+        with open("config/mail.yaml") as f:
+            config = yaml.load(f)["mail"]
+            print(config)
+        self.hostconf = config["hostconf"]
         self.sender = ""
         self.password = ""
         self.host = ""

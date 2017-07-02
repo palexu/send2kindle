@@ -7,6 +7,7 @@ import Kmail
 from Spider import Spider
 import logging
 import logging.config
+import NovelHandler
 
 logging.config.fileConfig("config/logging.conf")
 
@@ -125,6 +126,7 @@ class NovelDownloader():
         self.spider = Spider()
         self.FilenameCharset = "en"
 
+
     def sort_chapter(self, list):
         return sorted(list, key=lambda l: l[1])
 
@@ -140,14 +142,14 @@ class NovelDownloader():
         """
         lists = self.spider.get_all_chapter_links(pageUrl)
         # novelname_chi = self.spider.get_novel_name_chi(pageUrl)
-        novelname_chi = "修真四万年"
+        novelname_chi = self.spider.book_name
         # 当前读到了
         nowat = sql.readAtChapter(novelname_chi)
 
         # 设置文件名语言en or chi
         if self.FilenameCharset == "en":
             # filename = self.spider.get_novel_name_en(pageUrl)
-            filename = "xiuzheng40000years"
+            filename = "latest"
         else:
             filename = novelname_chi
 

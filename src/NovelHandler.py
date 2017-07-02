@@ -20,8 +20,8 @@ class BiqugeHandler:
     def get_base_url():
         return "http://www.biqudao.com"
 
-    def get_novel_name_chi(self, page):
-        return "chi_name"
+    def get_novel_name_chi(self, index_page):
+        return index_page.find("div", {"id": "info"}).h1.get_text()
 
     def get_novel_name_en(self, page):
         return "en_name"
