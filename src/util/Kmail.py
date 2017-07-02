@@ -1,14 +1,13 @@
 # coding=utf-8
-import smtplib
 import logging
 import logging.config
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import smtplib
 from email.header import Header
-from email.utils import formatdate
-import time
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import yaml
 
-logging.config.fileConfig("config/logging.conf")
+logging.config.fileConfig("../config/logging.conf")
 
 
 # sender = 'cnxujunyu@126.com'
@@ -35,28 +34,19 @@ logging.config.fileConfig("config/logging.conf")
 
 class Mail:
     def __init__(self):
-        self.hostconf = {
-            "163": {
-                "sender": '15957180610@163.com',
-                "password": "xujunyu520",
-                "host": 'smtp.163.com',
-            },
-            "126": {
-                "sender": 'cnxujunyu@126.com',
-                "password": "xujunyu520",
-                "host": 'smtp.126.com',
-            }
-        }
+        with open("../config/config.yaml") as f:
+            config = yaml.load(f)
+        self.hostconf = config["mail"]
         self.sender = ""
         self.password = ""
         self.host = ""
 
-        self.receiver = 'cnxujunyu@kindle.cn'
-        self.reportReceiver = '1098672878@qq.com'
+        self.receiver = config["receiver"]
+        self.reportReceiver = config["reportReceiver"]
         self.init_host_config("126")
 
-        self.subject = "请问为什么把我标记了？"
-        self.msgcontent = "见附件"
+        self.subject = config["subject"]
+        self.msgcontent = config["msgcontent"]
 
     def init_host_config(self, hostname):
         self.sender = self.hostconf[hostname]["sender"]
@@ -94,7 +84,7 @@ class Mail:
             logging.debug("%s add to message" % filename)
             message.attach(self.getAtt(filename))
 
-        logging.debug("using mail:%s"%self.host)
+        logging.debug("using mail:%s" % self.host)
         logging.debug("subject: %s" % message['Subject'])
         logging.debug("from:    %s" % message['from'])
         logging.debug("to:      %s" % message['to'])
@@ -119,3 +109,7 @@ class Mail:
             return att
         except Exception as e:
             logging.warning(e)
+
+
+if __name__ == '__main__':
+    m = Mail()
