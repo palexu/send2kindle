@@ -8,7 +8,7 @@ from email.header import Header
 from email.utils import formatdate
 import time
 
-logging.config.fileConfig("logging.conf")
+logging.config.fileConfig("config/logging.conf")
 
 
 # sender = 'cnxujunyu@126.com'

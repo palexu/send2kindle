@@ -93,7 +93,7 @@ class SpiderTest(unittest.TestCase):
     def testGetOneCha(self):
         pass
         # spider = novel.Spider()
-        # spider.getOneChapter("http://www.shumilou.co/zhongshengzhishenjixueba/zhongshengzhishenjixueba/6933214.html")
+        # spider.get_one_chapter("http://www.shumilou.co/zhongshengzhishenjixueba/zhongshengzhishenjixueba/6933214.html")
 
 
 if __name__ == '__main__':

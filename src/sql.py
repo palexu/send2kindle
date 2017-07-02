@@ -3,7 +3,7 @@ import sqlite3
 import traceback
 import logging
 import logging.config
-logging.config.fileConfig("logging.conf")
+logging.config.fileConfig("config/logging.conf")
 
 def createTableReaded():
     try:
@@ -209,3 +209,4 @@ def test_delChapter():
 
 if __name__ == '__main__':
     createTableChapters()
+    createTableReaded()

@@ -8,10 +8,8 @@ from Spider import Spider
 import logging
 import logging.config
 
-# logging.basicConfig(level=logging.INFO,
-#                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-#                     datefmt='[%H:%M:%S]', )
-logging.config.fileConfig("logging.conf")
+logging.config.fileConfig("config/logging.conf")
+
 
 class Title:
     def __chinese(self, chapter):
@@ -110,6 +108,16 @@ def is_chi(self, text):
 # +++++++++++++++++++++++++++++++++++++++++
 class Novel():
     """
+    小说
+    """
+
+    def __init__(self, book_name, en_book_name):
+        self.book_name = book_name
+        self.en_book_name = en_book_name
+
+
+class NovelDownloader():
+    """
     负责封装下载小说的基本操作
     """
 
@@ -117,7 +125,10 @@ class Novel():
         self.spider = Spider()
         self.FilenameCharset = "en"
 
-    def setFilenameCharset(self, charset):
+    def sort_chapter(self, list):
+        return sorted(list, key=lambda l: l[1])
+
+    def set_filename_charset(self, charset):
         self.FilenameCharset = charset
 
     def get_latest_updates(self, pageUrl, checknum):
@@ -127,14 +138,16 @@ class Novel():
         :param checknum:小于该数字的更新数，不发送
         :return:
         """
-        lists = self.spider.getAllChapterLinks(pageUrl)
-        novelname_chi = self.spider.getNovelName_chi(pageUrl)
+        lists = self.spider.get_all_chapter_links(pageUrl)
+        # novelname_chi = self.spider.get_novel_name_chi(pageUrl)
+        novelname_chi = "修真四万年"
         # 当前读到了
         nowat = sql.readAtChapter(novelname_chi)
 
         # 设置文件名语言en or chi
         if self.FilenameCharset == "en":
-            filename = self.spider.getNovelName_en(pageUrl)
+            # filename = self.spider.get_novel_name_en(pageUrl)
+            filename = "xiuzheng40000years"
         else:
             filename = novelname_chi
 
@@ -143,7 +156,7 @@ class Novel():
 
         # 将新章节的url和name放入l
         for i in lists:
-            if i[1] == nowat:
+            if i[1] in nowat or nowat in i[1]:
                 isnew = True
                 continue
             if isnew:
@@ -167,7 +180,7 @@ class Novel():
                 sql.addChapter(novelname_chi, i[1])
 
         # 构造待发送的文件名：该处理很不健壮！！
-        cleanlist = self.__washNovelList(l)
+        cleanlist = self.__wash_novel_list(l)
         start = cleanlist[1]
         end = cleanlist[2]
         # 构造文件名
@@ -179,7 +192,7 @@ class Novel():
         sql.setAtChapter(novelname_chi, newest)
         return filename
 
-    def __washNovelList(self, lists):
+    def __wash_novel_list(self, lists):
         l = []
         mx = 0
         mi = 1000000
@@ -245,11 +258,11 @@ class Service:
     """
 
     def __init__(self):
-        self.novel = Novel()
+        self.novel = NovelDownloader()
         self.mail = Kmail.Mail()
         self.checknum = 3
-        self.novelList=[]
-        self.novels=[]
+        self.novelList = []
+        self.novels = []
 
     def all_novels_latest_updates_2_kindle(self):
         """
@@ -259,16 +272,21 @@ class Service:
         :return:
         """
         for noveltouple in self.novels:
-            fname = self.novel.get_latest_updates(noveltouple[0], self.checknum)
-            if fname!="":
+            fname = self.novel.get_latest_updates(noveltouple, self.checknum)
+            if fname != "":
                 self.novelList.append(fname)
-        logging.debug("%s wait to be send..."%self.novelList)
-        self.mail.send2kindle(self.novelList)
 
-    def add_novel(self,noveltouple):
+        if len(self.novelList) == 0:
+            logging.info("nothing to send")
+        else:
+            logging.debug("%s wait to be send..." % self.novelList)
+            self.mail.send2kindle(self.novelList)
+
+    def add_novel(self, noveltouple):
         self.novels.append(noveltouple)
 
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod(verbose=True)
