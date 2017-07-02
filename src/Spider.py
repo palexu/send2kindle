@@ -23,6 +23,7 @@ class Spider:
             "Accept-Encoding": "gzip, deflate",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
+        self.book_name=""
 
     def check_is_dumplicate(self, set, obj):
         size_before = len(set)
@@ -31,6 +32,9 @@ class Spider:
             return False
         else:
             return True
+
+    def get_book_name_chi(self,index_page):
+        return index_page.find("div", {"id": "info"}).h1.get_text()
 
     def get_all_chapter_links(self, pageUrl):
         """
@@ -41,6 +45,9 @@ class Spider:
         logging.info("正在访问小说目录链接:%s" % pageUrl)
         html = self.session.get(pageUrl, headers=self.headers).text.encode("ISO-8859-1").decode("utf8")
         bsObj = BeautifulSoup(html, "html.parser")
+
+        self.book_name = self.get_book_name_chi(bsObj)
+
 
         novelList = bsObj.findAll("dd")
         linksList = []
@@ -64,7 +71,7 @@ class Spider:
                 pass
                 # break
         linksList = linksList[:-1]
-        logging.debug(linksList)
+        # logging.debug(linksList)
         return linksList
 
     def get_one_chapter(self, link):

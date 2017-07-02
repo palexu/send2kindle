@@ -4,7 +4,11 @@ urls:
         per: 1d
         count: 3
     -
-        url: http://www.biqudao.com/bqgesdfsf
+        url: http://www.biqudao.com/bqge11388
+        per: 1d
+        count: 5
+    -
+        url: http://www.biqudao.com/bqge1081
         per: 1d
         count: 5
 
