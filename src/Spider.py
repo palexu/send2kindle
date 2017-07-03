@@ -123,7 +123,7 @@ class Spider:
         """
         novel = "\n>>>" + title + "<<<\n"
         novel = novel + content
-        logging.debug(novel)
+        # logging.debug(novel)
         return novel
 
     def download(self, links, filename):

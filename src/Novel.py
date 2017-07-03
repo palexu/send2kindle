@@ -1,9 +1,9 @@
 # coding=utf-8
 
 import re
-import cnconvert as cn2
+import util.cnconvert as cn2
 import sql
-import Kmail
+import util.Kmail as Kmail
 from Spider import Spider
 import logging
 import logging.config
