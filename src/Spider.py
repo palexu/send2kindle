@@ -89,7 +89,7 @@ class Spider:
         title = self.get_title_from_page(bs_obj)
 
         # 格式化并返回
-        return self.format_content(title, content)
+        return self.format_chapter(title, content)
 
     def get_content_from_page(self, bs_obj):
         """
@@ -97,7 +97,8 @@ class Spider:
         :param bs_obj:
         :return: str 文章内容
         """
-        return bs_obj.find("div", {"id": "content"}).get_text()
+        content = bs_obj.find("div", {"id": "content"}).get_text()
+        return self.format_content(content)
 
     def get_title_from_page(self, bsObj):
         """
@@ -114,7 +115,7 @@ class Spider:
         return s
 
     @staticmethod
-    def format_content(title, content):
+    def format_chapter(title, content):
         """
         格式化每一章的显示内容
         :param title: 章节标题
@@ -125,6 +126,9 @@ class Spider:
         novel = novel + content
         # logging.debug(novel)
         return novel
+
+    def format_content(self,content):
+        return content
 
     def download(self, links, filename):
         """
