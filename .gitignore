@@ -4,5 +4,7 @@
 log
 *.pyc
 *.txt
+!requirements.txt
 .idea/*
+.python-version
 mail.yaml
