@@ -12,5 +12,5 @@
 
 
 `
-  docker run -i -t -v /your/path/send2kindle:/app send2kindle:latest
+  docker run -i -t -v /your/path/send2kindle:/app/send2kindle send2kindle:latest
 `
