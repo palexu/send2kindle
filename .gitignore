@@ -4,5 +4,6 @@
 log
 *.pyc
 *.txt
+!requirements.txt
 .idea/*
 mail.yaml
