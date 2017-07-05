@@ -1,3 +1,2 @@
 # min hour day month week  cmd
-#  *   */4  *  *      *    /root/app/send2kindle/run.sh 
-  */1   *  *  *      *    echo "hello"
+  *   */4  *  *      *   cd /app/send2kindle/src && python3 main.py && rm *.txt 

@@ -1,5 +1,5 @@
 FROM python:3.5
-
+RUN apt-get update && apt-get install -y cron
 WORKDIR /app
 
 COPY requirements.txt ./
@@ -12,4 +12,4 @@ COPY crontab /var/spool/cron/crontabs/root
 RUN chown -R root:crontab /var/spool/cron/crontabs/root && chmod 600 /var/spool/cron/crontabs/root
 RUN touch /var/log/cron.log
 
-CMD /app/run.sh
+CMD /app/cmd.sh
