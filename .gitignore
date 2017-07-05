@@ -1,5 +1,5 @@
 *.sh
-!run.sh
+!cmd.sh
 *.db
 *.log
 log

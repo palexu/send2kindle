@@ -3,9 +3,9 @@ RUN apt-get update && apt-get install -y cron
 WORKDIR /app
 
 COPY requirements.txt ./
-COPY run.sh ./
+COPY cmd.sh ./
 RUN pip install --no-cache-dir -r requirements.txt
-RUN chmod 777 ./run.sh
+RUN chmod 777 ./cmd.sh
 
 #add crontab
 COPY crontab /var/spool/cron/crontabs/root
