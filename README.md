@@ -19,3 +19,7 @@
 `
   docker run -i -t -v /root/app/send2kindle:/app/send2kindle send2kindle:latest
 `
+
+`
+  docker run -d -v /root/app/send2kindle:/app/send2kindle send2kindle
+`
