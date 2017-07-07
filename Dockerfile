@@ -3,13 +3,14 @@ RUN apt-get update && apt-get install -y cron
 WORKDIR /app
 
 COPY requirements.txt ./
-COPY cmd.sh ./
 RUN pip install --no-cache-dir -r requirements.txt
-RUN chmod 777 ./cmd.sh
 
 #add crontab
 COPY crontab /var/spool/cron/crontabs/root
 RUN chown -R root:crontab /var/spool/cron/crontabs/root && chmod 600 /var/spool/cron/crontabs/root
 RUN touch /var/log/cron.log
 
-CMD /app/cmd.sh
+COPY run_send2kindle.sh ./
+RUN chmod 755 run_send2kindle.sh
+
+CMD /app/run_send2kindle.sh

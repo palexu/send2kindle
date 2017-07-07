@@ -1,2 +1,2 @@
 # min hour day month week  cmd
-  *   */4  *  *      *   cd /app/send2kindle/src && python3 main.py && rm *.txt 
+*      *    *    *    *    /app/run_send2kindle.sh  2>/app/send2kindle/err.log
