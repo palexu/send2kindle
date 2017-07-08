@@ -1,2 +1,0 @@
-# min hour day month week  cmd
-*      *    *    *    *    /app/run_send2kindle.sh  2>/app/send2kindle/err.log
