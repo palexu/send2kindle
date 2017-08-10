@@ -23,6 +23,7 @@
 `
   docker run -d -v /root/app/send2kindle:/app/send2kindle send2kindle
 `
+
 `
 docker build -t send2kindle . && docker run -d -v /root/app/send2kindle:/app/send2kindle send2kindle
 `
