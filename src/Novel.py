@@ -132,7 +132,7 @@ class NovelDownloader():
     def set_filename_charset(self, charset):
         self.FilenameCharset = charset
 
-    def get_latest_updates(self, pageUrl, checknum):
+    def get_latest_updates(self, filename, pageUrl, checknum):
         """
         获得最近更新的小说
         :param pageUrl:小说目录链接
@@ -140,16 +140,14 @@ class NovelDownloader():
         :return:
         """
         lists = self.spider.get_all_chapter_links(pageUrl)
-        # novelname_chi = self.spider.get_novel_name_chi(pageUrl)
-        novelname_chi = self.spider.book_name
+
+        novelname_chi = self.spider.book_name_chi
         # 当前读到了
         nowat = sql.readAtChapter(novelname_chi)
 
         # 设置文件名语言en or chi
-        if self.FilenameCharset == "en":
-            # filename = self.spider.get_novel_name_en(pageUrl)
-            filename = "latest"
-        else:
+        if self.FilenameCharset == "ch":
+            logging.info("set filename to ch_ZH")
             filename = novelname_chi
 
         l = []
@@ -181,12 +179,13 @@ class NovelDownloader():
                 sql.addChapter(novelname_chi, i[1])
 
         # 构造待发送的文件名：该处理很不健壮！！
-        cleanlist = self.__wash_novel_list(l)
-        start = cleanlist[1]
-        end = cleanlist[2]
+        cleanList = self.__wash_novel_list(l)
+        start = cleanList[1]
+        end = cleanList[2]
+
         # 构造文件名
-        suf = suffix(start, end)
-        filename = filename + "#" + suf + ".txt"
+        readBetween = suffix(start, end)
+        filename = filename + "#" + readBetween + ".txt"
         # 抓取l内的文章
         self.spider.download(l, filename)
         logging.info("下载文件成功...")
@@ -259,13 +258,14 @@ class Service:
     向外提供服务
     """
 
-    def __init__(self):
+    def __init__(self, config):
+        if self.check_config(config):
+            self.config = config
+        else:
+            raise Exception("error while reading config")
         self.novelSpider = NovelDownloader()
-        self.config = None
         self.mailSender = Kmail.Mail()
-        self.novelList = []
         self.novels = []
-
 
     def all_novels_latest_updates_2_kindle(self):
         """
@@ -274,28 +274,26 @@ class Service:
         :param checknum:
         :return:
         """
+        novelNameList = []
         for item in self.config["urls"]:
-            fname = self.novelSpider.get_latest_updates(item["url"], item["count"])
+            fname = self.novelSpider.get_latest_updates(item["name"], item["url"], item["count"])
             if fname != "":
-                self.novelList.append(fname)
+                novelNameList.append(fname)
 
-        if len(self.novelList) == 0:
+        if len(novelNameList) == 0:
             logging.info("nothing to send")
         else:
-            logging.debug("%s wait to be send..." % self.novelList)
-            self.mailSender.send2kindle(self.novelList)
+            logging.debug("%s wait to be send..." % novelNameList)
+            self.mailSender.send2kindle(novelNameList)
 
-    def load_config(self, config):
+    def check_config(self, config):
         """
         加载配置文件
         :param config:
         :return:
         """
-        try:
-            # 判断配置文件结构
-            self.config = config
-        except Exception as e:
-            logging.log("error while read config file")
+        # 判断配置文件结构
+        return True
 
 
 if __name__ == '__main__':

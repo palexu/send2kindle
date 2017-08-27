@@ -23,7 +23,7 @@ class Spider:
             "Accept-Encoding": "gzip, deflate",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
-        self.book_name=""
+        self.book_name_chi = None
 
     def check_is_dumplicate(self, set, obj):
         size_before = len(set)
@@ -33,7 +33,7 @@ class Spider:
         else:
             return True
 
-    def get_book_name_chi(self,index_page):
+    def get_book_name_chi(self, index_page):
         return index_page.find("div", {"id": "info"}).h1.get_text()
 
     def get_all_chapter_links(self, pageUrl):
@@ -46,8 +46,8 @@ class Spider:
         html = self.session.get(pageUrl, headers=self.headers).text.encode("ISO-8859-1").decode("utf8")
         bsObj = BeautifulSoup(html, "html.parser")
 
-        self.book_name = self.get_book_name_chi(bsObj)
-
+        self.book_name_chi = self.get_book_name_chi(bsObj)
+        logging.debug("book name is %s" % self.book_name_chi)
 
         novelList = bsObj.findAll("dd")
         linksList = []
@@ -55,7 +55,7 @@ class Spider:
         regx = r'\.html'
         pattern = re.compile(regx)
 
-        #适配biqudao的特殊页面，开头有12个最新章节
+        # 适配biqudao的特殊页面，开头有12个最新章节
         novelList = novelList[12:]
 
         for novel in novelList:
@@ -127,8 +127,13 @@ class Spider:
         # logging.debug(novel)
         return novel
 
-    def format_content(self,content):
-        return content
+    def format_content(self, content):
+        """
+        格式化文章内容
+        :param content:
+        :return:
+        """
+        return content.strip().replace("  ", "\n")
 
     def download(self, links, filename):
         """
@@ -158,6 +163,8 @@ class Spider:
 
 
 if __name__ == '__main__':
-    sp = Spider()
-    print(sp.get_all_chapter_links("http://www.biqudao.com/bqge7946/"))
-    # print(sp.get_one_chapter("http://www.biqudao.com/bqge7946/4397750.html"))
+    import doctest
+    doctest.testmod()
+    # sp = Spider()
+    # print(sp.get_all_chapter_links("http://www.biqudao.com/bqge7946/"))
+    # # print(sp.get_one_chapter("http://www.biqudao.com/bqge7946/4397750.html"))
