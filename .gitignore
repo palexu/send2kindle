@@ -9,3 +9,4 @@ log
 .idea/*
 .python-version
 mail.yaml
+*.bak
