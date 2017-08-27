@@ -1,13 +1,13 @@
 # coding=utf-8
 
-import re
-import util.cnconvert as cn2
-import sql
-import util.Kmail as Kmail
-from Spider import Spider
 import logging
 import logging.config
-import NovelHandler
+import re
+
+import sql
+import util.Kmail as Kmail
+import util.cnconvert as cn2
+from Spider import Spider
 
 logging.config.fileConfig("config/logging.conf")
 
@@ -126,7 +126,6 @@ class NovelDownloader():
         self.spider = Spider()
         self.FilenameCharset = "en"
 
-
     def sort_chapter(self, list):
         return sorted(list, key=lambda l: l[1])
 
@@ -194,7 +193,8 @@ class NovelDownloader():
         sql.setAtChapter(novelname_chi, newest)
         return filename
 
-    def __wash_novel_list(self, lists):
+    @staticmethod
+    def __wash_novel_list(lists):
         l = []
         mx = 0
         mi = 1000000
@@ -260,11 +260,12 @@ class Service:
     """
 
     def __init__(self):
-        self.novel = NovelDownloader()
-        self.mail = Kmail.Mail()
-        self.checknum = 3
+        self.novelSpider = NovelDownloader()
+        self.config = None
+        self.mailSender = Kmail.Mail()
         self.novelList = []
         self.novels = []
+
 
     def all_novels_latest_updates_2_kindle(self):
         """
@@ -273,8 +274,8 @@ class Service:
         :param checknum:
         :return:
         """
-        for noveltouple in self.novels:
-            fname = self.novel.get_latest_updates(noveltouple, self.checknum)
+        for item in self.config["urls"]:
+            fname = self.novelSpider.get_latest_updates(item["url"], item["count"])
             if fname != "":
                 self.novelList.append(fname)
 
@@ -282,10 +283,19 @@ class Service:
             logging.info("nothing to send")
         else:
             logging.debug("%s wait to be send..." % self.novelList)
-            self.mail.send2kindle(self.novelList)
+            self.mailSender.send2kindle(self.novelList)
 
-    def add_novel(self, noveltouple):
-        self.novels.append(noveltouple)
+    def load_config(self, config):
+        """
+        加载配置文件
+        :param config:
+        :return:
+        """
+        try:
+            # 判断配置文件结构
+            self.config = config
+        except Exception as e:
+            logging.log("error while read config file")
 
 
 if __name__ == '__main__':

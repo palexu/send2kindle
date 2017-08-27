@@ -1,9 +1,9 @@
 urls:
-    -
+    -   # xiu zheng si wan nian
         url: http://www.biqudao.com/bqge7946
         per: 1d
-        count: 3
-    -
+        count: 10
+    -   #
         url: http://www.biqudao.com/bqge11388
         per: 1d
         count: 5

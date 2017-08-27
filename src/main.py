@@ -8,7 +8,7 @@ if __name__ == '__main__':
     # 2-n：累积n章节后发送
     with open("config/config.yaml") as config:
         settings = yaml.load(config)
+        print(settings)
     service = Novel.Service()
-    for novel_setting in settings["urls"]:
-        service.add_novel(novel_setting["url"])
+    service.load_config(settings)
     service.all_novels_latest_updates_2_kindle()

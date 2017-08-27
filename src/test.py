@@ -80,9 +80,9 @@ class ScrapyTest(unittest.TestCase):
         sql.test_delChapter()
 
         service = Novel.Service()
-        service.mail = mock_Mail()
-        service.mail.set_receiver("1098672878@qq.com")
-        service.mail.init_host_config('163')
+        service.mailSender = mock_Mail()
+        service.mailSender.set_receiver("1098672878@qq.com")
+        service.mailSender.init_host_config('163')
 
         for link in settings:
             service.add_novel(link)
