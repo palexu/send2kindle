@@ -1,6 +1,11 @@
 # send2kindle
 用于获取小说并推送到kindle。
 
+## TODO
+
+- 完成通知功能
+- web 管理界面
+
 ## 配置
 - config/mail.yaml 将该目录下已有的mail.yaml.bak 去掉.bak后缀，并加入自己邮件的参数即可
 - config/config.yaml 目前只支持[笔趣岛](http://www.biqudao.com)，将指定小说的目录页添加到配置中即可
