@@ -9,6 +9,7 @@ import yaml
 
 logging.config.fileConfig("config/logging.conf")
 
+
 class Mail:
     def __init__(self):
         with open("config/mail.yaml") as f:
@@ -21,7 +22,7 @@ class Mail:
 
         self.receiver = config["receiver"]
         self.reportReceiver = config["reportReceiver"]
-        self.init_host_config("126")
+        self.init_host_config("163")
 
         self.subject = config["subject"]
         self.msgcontent = config["msgcontent"]
@@ -35,19 +36,20 @@ class Mail:
         self.receiver = receiver
 
     def send2kindle(self, novellist):
-        # 创建一个带附件的实例
         with smtplib.SMTP_SSL(self.host) as s:
             s.login(self.sender, self.password)
             try:
-                message = self.writeMail(novellist)
+                message = self.make_kindle_mail(novellist)
                 s.sendmail(self.sender, self.receiver, message.as_string())
                 logging.info("[%s]发送成功" % novellist)
+                report = self.make_report(novellist)
+                s.sendmail(self.sender, self.reportReceiver, report.as_string())
+                logging.info("报告已发送到[%s]" % self.reportReceiver)
             except smtplib.SMTPDataError as re:
                 logging.error("邮件发送失败:%s" % re)
 
-    def writeMail(self, filelist):
+    def make_kindle_mail(self, filelist):
         """
-        制作一封信
         :param filelist:文件列表
         :return:
         """
@@ -55,18 +57,30 @@ class Mail:
         message = MIMEMultipart()
         message['Subject'] = self.subject
         message['from'] = self.sender
-        message['to'] = self.receiver
+        message['to'] = self.reportReceiver
 
         message.attach(MIMEText(self.msgcontent, 'plain', 'utf-8'))
         for filename in filelist:
             logging.debug("%s add to message" % filename)
             message.attach(self.getAtt(filename))
 
-        logging.debug("using mail:%s" % self.host)
+        logging.debug("using mail config:%s" % self.host)
         logging.debug("subject: %s" % message['Subject'])
         logging.debug("from:    %s" % message['from'])
         logging.debug("to:      %s" % message['to'])
         logging.debug("邮件内容  :%s" % self.msgcontent)
+
+        return message
+
+    def make_report(self, novel_list):
+        s = "下列更新已发送:\n"
+        for i in novel_list:
+            s = s + i + "\n"
+        logging.debug("report content=%s" % s)
+        message = MIMEText(s, 'plain', 'utf-8')
+        message['Subject'] = "[send2kindle] report"
+        message['from'] = self.sender
+        message['to'] = self.receiver
 
         return message
 

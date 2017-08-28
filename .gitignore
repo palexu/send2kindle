@@ -10,3 +10,4 @@ log
 .python-version
 mail.yaml
 *.bak
+!mail.yaml.bak
