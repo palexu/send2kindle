@@ -4,12 +4,12 @@ import logging
 import logging.config
 import re
 
-import sql
-import util.Kmail as Kmail
-import util.cnconvert as cn2
-from Spider import Spider
+from send2kindle import Sql
+from send2kindle.util import Kmail
+from send2kindle.util import cnconvert as cn2
+from send2kindle import Spider
 
-logging.config.fileConfig("config/logging.conf")
+logging.config.fileConfig("../config/logging.conf")
 
 
 class Title:
@@ -106,7 +106,6 @@ def is_chi(self, text):
     return all('\u4e00' <= char <= '\u9fff' for char in text)
 
 
-# +++++++++++++++++++++++++++++++++++++++++
 class Novel():
     """
     小说
@@ -123,8 +122,10 @@ class NovelDownloader():
     """
 
     def __init__(self):
-        self.spider = Spider()
+        self.spider = Spider.Spider()
         self.FilenameCharset = "en"
+        self.readedDao = Sql.ReadedDao()
+        self.chapterDao = Sql.ChapterDao()
 
     def sort_chapter(self, list):
         return sorted(list, key=lambda l: l[1])
@@ -143,7 +144,7 @@ class NovelDownloader():
 
         novelname_chi = self.spider.book_name_chi
         # 当前读到了
-        nowat = sql.readAtChapter(novelname_chi)
+        nowat = self.readedDao.load_read_at(novelname_chi)
 
         # 设置文件名语言en or chi
         if self.FilenameCharset == "ch":
@@ -159,7 +160,7 @@ class NovelDownloader():
                 isnew = True
                 continue
             if isnew:
-                if not sql.hasChapter(novelname_chi, i[1]):
+                if not self.chapterDao.has_chapter(novelname_chi, i[1]):
                     l.append(i)
 
         logging.info("小说标题:%s" % novelname_chi)
@@ -176,7 +177,7 @@ class NovelDownloader():
             return ""
         else:
             for i in l:
-                sql.addChapter(novelname_chi, i[1])
+                self.chapterDao.add_chapter(novelname_chi, i[1])
 
         # 构造待发送的文件名：该处理很不健壮！！
         cleanList = self.__wash_novel_list(l)
@@ -189,7 +190,7 @@ class NovelDownloader():
         # 抓取l内的文章
         self.spider.download(l, filename)
         logging.info("下载文件成功...")
-        sql.setAtChapter(novelname_chi, newest)
+        self.readedDao.set_read_at(novelname_chi, newest)
         return filename
 
     @staticmethod
@@ -270,8 +271,6 @@ class Service:
     def all_novels_latest_updates_2_kindle(self):
         """
         发送最近更新的小说(未阅读)到kindle中
-        :param novelUrl: 小说目录链接
-        :param checknum:
         :return:
         """
         novelNameList = []
@@ -284,7 +283,7 @@ class Service:
             logging.info("nothing to send")
         else:
             logging.debug("%s wait to be send..." % novelNameList)
-            self.mailSender.send2kindle(novelNameList)
+            # self.mailSender.send2kindle(novelNameList)
 
     def check_config(self, config):
         """

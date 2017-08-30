@@ -5,9 +5,9 @@ import traceback
 import logging
 import logging.config
 import re
-import NovelHandler
+from send2kindle import NovelHandler
 
-logging.config.fileConfig("config/logging.conf")
+logging.config.fileConfig("../config/logging.conf")
 
 
 class Spider:
@@ -119,7 +119,6 @@ class Spider:
         """
         格式化每一章的显示内容
         :param title: 章节标题
-        :param novel: 章节内容
         :return: str 完整的章节内容
         """
         novel = "\n>>>" + title + "<<<\n"
@@ -164,6 +163,7 @@ class Spider:
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()
     # sp = Spider()
     # print(sp.get_all_chapter_links("http://www.biqudao.com/bqge7946/"))
