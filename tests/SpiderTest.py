@@ -16,12 +16,8 @@ class ScrapyTest(unittest.TestCase):
     def testScrapy(self, mock_Mail):
         settings = [
             ["http://www.shumilou.co/zhongshengzhishenjixueba", 0],
-            ["http://www.shumilou.co/xiuzhensiwannian", 0],
-            ["http://www.shumilou.co/zoujinxiuxian", 0],
         ]
         Sql.set_read_at("重生之神级学霸", "第1085章 优势")
-        Sql.set_read_at("走进修仙", "第一百五十七章 问题")
-        Sql.set_read_at("修真四万年", "第1697章 召唤，降临！")
         Sql.test_delChapter()
 
         service = Novel.Service()

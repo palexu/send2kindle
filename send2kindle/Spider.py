@@ -69,7 +69,6 @@ class Spider:
             except Exception as e:
                 print("get_all_chapter_links:error  " + str(e))
                 pass
-                # break
         linksList = linksList[:-1]
         # logging.debug(linksList)
         return linksList
@@ -146,12 +145,12 @@ class Spider:
                 url = link[0]
                 logging.info("download:%s" % link[1])
                 content = self.get_one_chapter(url)
-                self.__save2file(filename, content)
+                self.save_2_file(filename, content)
                 # time.sleep(500)
             except Exception as e:
                 traceback.print_exc()
 
-    def __save2file(self, filename, content):
+    def save_2_file(self, filename, content):
         try:
             filename = filename
             f = open(filename, 'at', encoding="utf-8")
@@ -159,12 +158,3 @@ class Spider:
             f.close()
         except Exception as e:
             traceback.print_exc()
-
-
-if __name__ == '__main__':
-    import doctest
-
-    doctest.testmod()
-    # sp = Spider()
-    # print(sp.get_all_chapter_links("http://www.biqudao.com/bqge7946/"))
-    # # print(sp.get_one_chapter("http://www.biqudao.com/bqge7946/4397750.html"))

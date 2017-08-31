@@ -7,46 +7,40 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import yaml
 
-logging.config.fileConfig("config/logging.conf")
+logging.config.fileConfig("../config/logging.conf")
 
 
 class Mail:
     def __init__(self):
-        with open("config/mail.yaml") as f:
+        with open("../config/mail.yaml") as f:
             config = yaml.load(f)["mail"]
             print(config)
-        self.hostconf = config["hostconf"]
-        self.sender = ""
-        self.password = ""
-        self.host = ""
-
+        self.init_host = config["init_host_config"]
+        self.host = config["hostconf"][self.init_host]
         self.receiver = config["receiver"]
         self.reportReceiver = config["reportReceiver"]
-        self.init_host_config("163")
-
         self.subject = config["subject"]
         self.msgcontent = config["msgcontent"]
 
-    def init_host_config(self, hostname):
-        self.sender = self.hostconf[hostname]["sender"]
-        self.password = self.hostconf[hostname]["password"]
-        self.host = self.hostconf[hostname]["host"]
-
-    def set_receiver(self, receiver):
-        self.receiver = receiver
-
     def send2kindle(self, novellist):
-        with smtplib.SMTP_SSL(self.host) as s:
-            s.login(self.sender, self.password)
+        """
+        发送小说到kindle 发送报告到接受者
+        :param novellist:
+        :return: true or false
+        """
+        with smtplib.SMTP_SSL(self.host["host"]) as s:
+            s.login(self.host["sender"], self.host["password"])
             try:
                 message = self.make_kindle_mail(novellist)
-                s.sendmail(self.sender, self.receiver, message.as_string())
+                s.sendmail(self.host["sender"], self.receiver, message.as_string())
                 logging.info("[%s]发送成功" % novellist)
                 report = self.make_report(novellist)
-                s.sendmail(self.sender, self.reportReceiver, report.as_string())
+                s.sendmail(self.host["sender"], self.reportReceiver, report.as_string())
                 logging.info("报告已发送到[%s]" % self.reportReceiver)
+                return True
             except smtplib.SMTPDataError as re:
                 logging.error("邮件发送失败:%s" % re)
+                return False
 
     def make_kindle_mail(self, filelist):
         """
@@ -56,33 +50,39 @@ class Mail:
 
         message = MIMEMultipart()
         message['Subject'] = self.subject
-        message['from'] = self.sender
-        message['to'] = self.reportReceiver
+        message['from'] = self.host["sender"]
+        message['to'] = self.receiver
 
         message.attach(MIMEText(self.msgcontent, 'plain', 'utf-8'))
         for filename in filelist:
             logging.debug("%s add to message" % filename)
             message.attach(self.getAtt(filename))
 
+        logging.debug("=================================")
         logging.debug("using mail config:%s" % self.host)
         logging.debug("subject: %s" % message['Subject'])
         logging.debug("from:    %s" % message['from'])
         logging.debug("to:      %s" % message['to'])
         logging.debug("邮件内容  :%s" % self.msgcontent)
+        logging.debug("=================================")
 
         return message
 
     def make_report(self, novel_list):
+        s = self.make_report_message(novel_list)
+        message = MIMEText(s, 'plain', 'utf-8')
+        message['Subject'] = "[send2kindle] report"
+        message['from'] = self.host["sender"]
+        message['to'] = self.reportReceiver
+
+        return message
+
+    def make_report_message(self, novel_list):
         s = "下列更新已发送:\n"
         for i in novel_list:
             s = s + i + "\n"
         logging.debug("report content=%s" % s)
-        message = MIMEText(s, 'plain', 'utf-8')
-        message['Subject'] = "[send2kindle] report"
-        message['from'] = self.sender
-        message['to'] = self.receiver
-
-        return message
+        return s
 
     def getAtt(self, filename):
         """

@@ -3,13 +3,16 @@
 import logging
 import logging.config
 import re
+import yaml
 
 from send2kindle import Sql
 from send2kindle.util import Kmail
 from send2kindle.util import cnconvert as cn2
+from send2kindle.util import ServerChan
 from send2kindle import Spider
 
 logging.config.fileConfig("../config/logging.conf")
+mailConfig = "../config/mail.yaml"
 
 
 class Title:
@@ -164,7 +167,6 @@ class NovelDownloader():
                     l.append(i)
 
         logging.info("小说标题:%s" % novelname_chi)
-        # checknum=0 一有新的章节就更新 checknum=3 累积三章以上再推送
         try:
             newest = l[-1][1]
             logging.info("当前已读到%s" % nowat)
@@ -180,9 +182,9 @@ class NovelDownloader():
                 self.chapterDao.add_chapter(novelname_chi, i[1])
 
         # 构造待发送的文件名：该处理很不健壮！！
-        cleanList = self.__wash_novel_list(l)
-        start = cleanList[1]
-        end = cleanList[2]
+        ll, start, end = self.wash_novel_list(l)
+
+        logging.info(ll)
 
         # 构造文件名
         readBetween = suffix(start, end)
@@ -194,7 +196,7 @@ class NovelDownloader():
         return filename
 
     @staticmethod
-    def __wash_novel_list(lists):
+    def wash_novel_list(lists):
         l = []
         mx = 0
         mi = 1000000
@@ -250,9 +252,6 @@ class NovelDownloader():
         logging.debug("max:%d min:%d" % (mx, mi))
         return l, mi, mx
 
-    def run(self):
-        pass
-
 
 class Service:
     """
@@ -283,7 +282,10 @@ class Service:
             logging.info("nothing to send")
         else:
             logging.debug("%s wait to be send..." % novelNameList)
-            # self.mailSender.send2kindle(novelNameList)
+            if self.mailSender.send2kindle(novelNameList):
+                with open(mailConfig) as f:
+                    scKey = yaml.load(f)["serverChan"]["scKey"]
+                ServerChan.send(scKey, "小说发送成功", self.mailSender.make_report_message(novelNameList))
 
     def check_config(self, config):
         """
