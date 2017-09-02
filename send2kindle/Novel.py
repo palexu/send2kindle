@@ -5,11 +5,11 @@ import logging.config
 import re
 import yaml
 
-from send2kindle import Sql
-from send2kindle.util import Kmail
-from send2kindle.util import cnconvert as cn2
-from send2kindle.util import ServerChan
-from send2kindle import Spider
+import Sql
+from util import Kmail
+from util import cnconvert as cn2
+from util import ServerChan
+import Spider
 
 logging.config.fileConfig("../config/logging.conf")
 mailConfig = "../config/mail.yaml"

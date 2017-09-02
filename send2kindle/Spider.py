@@ -5,7 +5,7 @@ import traceback
 import logging
 import logging.config
 import re
-from send2kindle import NovelHandler
+import NovelHandler
 
 logging.config.fileConfig("../config/logging.conf")
 

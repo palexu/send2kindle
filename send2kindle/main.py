@@ -1,6 +1,6 @@
 # coding=utf-8
 import yaml
-from send2kindle import Novel
+import Novel
 
 if __name__ == '__main__':
     with open("../config/config.yaml") as config:
