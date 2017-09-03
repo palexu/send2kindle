@@ -1,7 +1,6 @@
-
 import sys
-print(sys.path)
-import ..／send2kindle
+
+sys.path.append("../")
 import SpiderTest
 import SqlTest
 import unittest

@@ -1,4 +1,7 @@
 import unittest
+import sys
+
+sys.path.append("../")
 from send2kindle import Sql
 from send2kindle import Novel
 import unittest.mock as mock
