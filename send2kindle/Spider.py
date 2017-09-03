@@ -5,6 +5,9 @@ import traceback
 import logging
 import logging.config
 import re
+import sys
+
+sys.path.append("../")
 from send2kindle import NovelHandler
 
 logging.config.fileConfig("../config/logging.conf")

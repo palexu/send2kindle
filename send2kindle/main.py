@@ -1,5 +1,8 @@
 # coding=utf-8
 import yaml
+import sys
+
+sys.path.append("../")
 from send2kindle import Novel
 
 if __name__ == '__main__':
