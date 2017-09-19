@@ -5,7 +5,10 @@ import traceback
 import logging
 import logging.config
 import re
-import NovelHandler
+import sys
+
+sys.path.append("../")
+from send2kindle import NovelHandler
 
 logging.config.fileConfig("../config/logging.conf")
 
@@ -67,7 +70,7 @@ class Spider:
                     l = [NovelHandler.BiqugeHandler.get_base_url() + link, name]
                     linksList.append(l)
             except Exception as e:
-                print("get_all_chapter_links:error  " + str(e))
+                logging.error("get_all_chapter_links:error  " + str(e))
                 pass
         linksList = linksList[:-1]
         # logging.debug(linksList)
@@ -148,7 +151,7 @@ class Spider:
                 self.save_2_file(filename, content)
                 # time.sleep(500)
             except Exception as e:
-                traceback.print_exc()
+                logging.error(e)
 
     def save_2_file(self, filename, content):
         try:
@@ -157,4 +160,4 @@ class Spider:
             f.write(content)
             f.close()
         except Exception as e:
-            traceback.print_exc()
+            logging.error(e)

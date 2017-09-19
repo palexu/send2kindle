@@ -7,7 +7,6 @@ import logging.config
 
 logging.config.fileConfig("../config/logging.conf")
 db = os.path.abspath(r'../db/novel.db')
-print(db)
 
 
 class ReadedDao:
@@ -32,7 +31,7 @@ class ReadedDao:
                     """ % self.table, param)
                 conn.commit()
         except Exception as e:
-            traceback.print_exc()
+            logging.error(e)
 
     def del_novel(self, bookname):
         try:
@@ -45,7 +44,7 @@ class ReadedDao:
                     """ % self.table, param)
                 conn.commit()
         except Exception as e:
-            traceback.print_exc()
+            logging.error(e)
 
     def load_novel(self, bookname):
         try:
@@ -60,7 +59,7 @@ class ReadedDao:
                 rs = cursor.fetchone()
                 return rs
         except Exception as e:
-            traceback.print_exc()
+            logging.error(e)
 
     def is_book_exits(self, bookname):
         try:
@@ -83,7 +82,7 @@ class ReadedDao:
                     """ % self.table, param)
                 return cursor.fetchone()[0]
         except Exception as e:
-            traceback.print_exc()
+            logging.error(e)
 
     def set_read_at(self, bookname, readAt):
         "设置最后推送的章节数"
@@ -100,7 +99,7 @@ class ReadedDao:
                     """ % self.table, param)
                 conn.commit()
         except Exception as e:
-            traceback.print_exc()
+            logging.error(e)
 
 
 class ChapterDao():
@@ -117,7 +116,7 @@ class ChapterDao():
                     """ % self.table, param)
                 conn.commit()
         except Exception as e:
-            traceback.print_exc()
+            logging.error(e)
 
     def has_chapter(self, bookname, chaTitle):
         try:
@@ -133,7 +132,7 @@ class ChapterDao():
                 else:
                     return False
         except Exception as e:
-            traceback.print_exc()
+            logging.error(e)
 
     def delete_chapter(self, bookname, chaTitle):
         try:
@@ -145,4 +144,4 @@ class ChapterDao():
                 """ % self.table, param)
                 conn.commit()
         except Exception as e:
-            traceback.print_exc()
+            logging.error(e)

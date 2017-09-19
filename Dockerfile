@@ -1,11 +1,9 @@
 FROM python:3.5
-RUN apt-get update && apt-get install -y cron
-WORKDIR /app
+RUN rm /etc/apt/sources.list && touch /etc/apt/sources.list && echo 'deb http://mirrors.aliyun.com/debian wheezy main contrib non-free' >> /etc/apt/sources.list && echo 'deb-src http://mirrors.aliyun.com/debian wheezy main contrib non-free' >> /etc/apt/sources.list && echo 'deb http://mirrors.aliyun.com/debian wheezy-updates main contrib non-free' >> /etc/apt/sources.list && echo 'deb-src http://mirrors.aliyun.com/debian wheezy-updates main contrib non-free' >> /etc/apt/sources.list && echo 'deb http://mirrors.aliyun.com/debian-security wheezy/updates main contrib non-free' >> /etc/apt/sources.list && echo 'deb-src http://mirrors.aliyun.com/debian-security wheezy/updates main contrib non-free' >> /etc/apt/sources.list
+RUN mkdir ~/.pip && touch ~/.pip/pip.conf && echo '[global]' >> ~/.pip/pip.conf && echo 'index-url = https://pypi.tuna.tsinghua.edu.cn/simple' >> ~/.pip/pip.conf
 
-COPY requirements.txt ./
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY run_send2kindle.sh ./
-RUN chmod 755 run_send2kindle.sh
-
-CMD /app/run_send2kindle.sh
+WORKDIR /app/send2kindle
+CMD /usr/local/bin/python Schedule.py

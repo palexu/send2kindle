@@ -32,3 +32,6 @@
 `
 docker build -t send2kindle . && docker run -d -v /root/app/send2kindle:/app/send2kindle send2kindle
 `
+
+---
+0 7,12,17  *   *   *     /root/app/send2kindle/docker_run_send2kindle.sh >> /var/log/send2kindle.log

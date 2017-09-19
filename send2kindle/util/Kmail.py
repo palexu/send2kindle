@@ -12,7 +12,7 @@ logging.config.fileConfig("../config/logging.conf")
 
 class Mail:
     def __init__(self):
-        with open("../config/mail.yaml") as f:
+        with open("../config/config.yaml") as f:
             config = yaml.load(f)["mail"]
             print(config)
         self.init_host = config["init_host_config"]

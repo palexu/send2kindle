@@ -4,15 +4,17 @@ import logging
 import logging.config
 import re
 import yaml
+import sys
 
-import Sql
-from util import Kmail
-from util import cnconvert as cn2
-from util import ServerChan
-import Spider
+sys.path.append("../")
+import send2kindle.Sql as Sql
+import send2kindle.util.Kmail as Kmail
+import send2kindle.util.cnconvert as cn2
+from send2kindle.util import ServerChan
+import send2kindle.Spider as Spider
 
 logging.config.fileConfig("../config/logging.conf")
-mailConfig = "../config/mail.yaml"
+mailConfig = "../config/config.yaml"
 
 
 class Title:
@@ -247,8 +249,7 @@ class NovelDownloader():
 
                     l.append(item)
                 except Exception as e:
-                    print(e)
-        # print(">>"*20)
+                    logging.error(e)
         logging.debug("max:%d min:%d" % (mx, mi))
         return l, mi, mx
 

@@ -1,6 +1,9 @@
 # coding=utf-8
 import unittest
 import os
+import sys
+
+sys.path.append("../")
 from send2kindle.util import Kmail
 
 
