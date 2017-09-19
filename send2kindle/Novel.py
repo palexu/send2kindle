@@ -249,8 +249,7 @@ class NovelDownloader():
 
                     l.append(item)
                 except Exception as e:
-                    print(e)
-        # print(">>"*20)
+                    logging.error(e)
         logging.debug("max:%d min:%d" % (mx, mi))
         return l, mi, mx
 
