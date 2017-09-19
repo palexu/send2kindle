@@ -14,7 +14,7 @@ from send2kindle.util import ServerChan
 import send2kindle.Spider as Spider
 
 logging.config.fileConfig("../config/logging.conf")
-mailConfig = "../config/mail.yaml"
+mailConfig = "../config/config.yaml"
 
 
 class Title:

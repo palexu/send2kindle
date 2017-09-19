@@ -8,6 +8,7 @@ log
 !requirements.txt
 .idea/*
 .python-version
-mail.yaml
 *.bak
-!mail.yaml.bak
+!config.yaml.bak
+config.yaml
+
