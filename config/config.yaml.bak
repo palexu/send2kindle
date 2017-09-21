@@ -1,38 +1,20 @@
+# sample
 urls:
-    -   name: forty-thousand-years
+    -   name: forty-thousand-years #set your novel name,which will be used for your file name.
         url: http://www.biqudao.com/bqge7946
-        per: 1d
-        count: 10
-
-    -   name: into-cultivation
-        url: http://www.biqudao.com/bqge11388
-        per: 1d
-        count: 5
-
-    -   name: super-scholar
-        url: http://www.biqudao.com/bqge1081
-        per: 1d
-        count: 5
+        count: 10 #collect at least 10 once time
 
 mail:
     hostconf:
         '163':
-            sender: '15957180610@163.com'
-            password: "xujunyu520"
+            sender: '15*******610@163.com'
+            password: "*******"
             host: 'smtp.163.com'
-        '126':
-            sender: 'cnxujunyu@126.com'
-            password: "xujunyu520"
-            host: 'smtp.126.com'
-        sina:
-            sender: 'cnxujunyu@sina.com'
-            password: '125108xu'
-            host: 'smtp.sina.com'
-    receiver: 'cnxujunyu@kindle.cn'
-    reportReceiver: '1098672878@qq.com'
-    init_host_config: '126'
+    receiver: 'cn******yu@kindle.cn'
+    reportReceiver: '10********8@qq.com'
+    init_host_config: '163'
     subject: ''
     msgcontent: ''
 
 serverChan:
-    scKey: SCU11255T9aac1a1f33b21e14d151caa16d6b424d59a66f9a1264f
+    scKey: SCU1*********************************64f
