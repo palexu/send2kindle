@@ -23,3 +23,6 @@
 `
   docker run -d -v 你的代码路径:/app send2kindle
 `
+
+## lib
+使用了kindleEar拆离的calibre的mobi、epub电子书生成模块

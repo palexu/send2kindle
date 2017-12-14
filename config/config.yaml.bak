@@ -16,5 +16,5 @@ mail:
     subject: ''
     msgcontent: ''
 
-serverChan:
+server_chan:
     scKey: SCU1*********************************64f
