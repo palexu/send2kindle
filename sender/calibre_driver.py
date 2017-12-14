@@ -4,10 +4,10 @@ from __future__ import unicode_literals
 import logging
 
 from collections import OrderedDict
-from lib.calibre.ebooks.conversion.mobioutput import MOBIOutput
-from lib.calibre.ebooks.conversion.epuboutput import EPUBOutput
-from lib.calibre.utils.bytestringio import byteStringIO
-from lib.makeoeb import *
+from calibre.ebooks.conversion.mobioutput import MOBIOutput
+from calibre.ebooks.conversion.epuboutput import EPUBOutput
+from calibre.utils.bytestringio import byteStringIO
+from sender.makeoeb import *
 
 log = logging.getLogger()
 

@@ -3,7 +3,6 @@
 # 将News feed生成的HTML文件转换成内存中的OEB格式
 # Author: cdhigh <https://github.com/cdhigh>
 import os, sys, uuid, re
-
 # 这两个是必须先引入的，会有一些全局初始化
 import calibre.startup
 import calibre.utils.resources
@@ -11,7 +10,7 @@ import calibre.utils.resources
 from calibre.ebooks.conversion.mobioutput import MOBIOutput
 from calibre.ebooks.conversion.epuboutput import EPUBOutput
 from calibre.utils.bytestringio import byteStringIO
-from config import *
+from lib.config import *
 
 
 def MimeFromFilename(f):
