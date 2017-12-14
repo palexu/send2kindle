@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import sender.Novel as Novel
+from sender.novel import service
 from util import config
+from sender import calibre_driver
 
 
 def run():
     settings = config.settings
-    service = Novel.Service(settings)
-    service.all_novels_latest_updates_2_kindle()
-
-
-def hello():
-    print("hello world")
-
+    s = service.Service(settings)
+    s.all_novels_latest_updates_2_kindle()
 
 if __name__ == '__main__':
-    run()
+    # run()
+    print("hello")

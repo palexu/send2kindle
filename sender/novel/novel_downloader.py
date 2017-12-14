@@ -3,99 +3,12 @@ from __future__ import unicode_literals
 
 import logging
 import logging.config
-import re
-import sender.Sql as Sql
-import util.Kmail as Kmail
-import util.cnconvert as cn2
-from util import ServerChan
-from util import config
-import sender.Spider as Spider
+from sender import spider
+from sender import sql
+from .tool import suffix
+from .title import Title
 
 logging.config.fileConfig("config/logging.conf")
-
-
-class Title:
-    def __chinese(self, chapter):
-        """
-        中文标题:如第一百章
-        :param chapter:
-        :return:
-        """
-        num = -1
-        pattern_chi = re.compile(r'第.+章')
-        match_chi = pattern_chi.search(chapter)
-        if match_chi:
-            chapter = match_chi.group()[1:-1]
-
-            if "两" in chapter:
-                chapter = chapter.replace("两", "二")
-            try:
-                num = cn2.c2n(chapter)
-
-            # 如果无法从中文转为数字，说明章节名混入了奇怪的字符
-            except Exception as e:
-                string = ""
-                pat = re.compile(r'[零一二三四五六七八九十百千两]+')
-                match_chi = pat.findall(chapter)
-                for i in match_chi:
-                    string += i
-                num = cn2.c2n(string)
-        return num
-
-    def __digit(self, chapterTitle):
-        """
-        数字标题:如第100章
-        """
-        num = -1
-        pattern_d = re.compile(r'第\d+章')
-        cha = pattern_d.search(chapterTitle)
-        if cha:
-            rs = cha.group()[1:-1]
-            if len(str(rs)) >= 1:
-                num = int(rs)
-        return num
-
-    def getNumOfTitle(self, chapter):
-        """
-        获得章节编号
-        """
-        num = -1
-        # 若全数字
-        pattern_d = re.compile(r'第\d+章')
-        cha = pattern_d.search(chapter)
-        if cha:
-            num = self.__digit(chapter)
-        # 若其他
-        else:
-            num = self.__chinese(chapter)
-        return num
-
-
-def suffix(start, end):
-    """
-    start(int) end(int) 构造待发送的文件名后缀：230-235 表示从230章到235章
-    """
-    suf = ""
-    if start == end:
-        suf = str(start)
-    else:
-        suf = str(start) + "-" + str(end)
-    return suf
-
-
-def is_chi(self, text):
-    """判断是否为中文"""
-    return all('\u4e00' <= char <= '\u9fff' for char in text)
-
-
-class Novel():
-    """
-    小说
-    """
-
-    def __init__(self, book_name, en_book_name):
-        self.book_name = book_name
-        self.en_book_name = en_book_name
 
 
 class NovelDownloader:
@@ -104,10 +17,10 @@ class NovelDownloader:
     """
 
     def __init__(self):
-        self.spider = Spider.Spider()
+        self.spider = spider.Spider()
         self.FilenameCharset = "en"
-        self.readedDao = Sql.ReadedDao()
-        self.chapterDao = Sql.ChapterDao()
+        self.readedDao = sql.ReadedDao()
+        self.chapterDao = sql.ChapterDao()
 
     def sort_chapter(self, list):
         return sorted(list, key=lambda l: l[1])
@@ -229,52 +142,3 @@ class NovelDownloader:
                     logging.error(e)
         logging.debug("max:%d min:%d" % (mx, mi))
         return l, mi, mx
-
-
-class Service:
-    """
-    向外提供服务
-    """
-
-    def __init__(self, config):
-        if self.check_config(config):
-            self.config = config
-        else:
-            raise Exception("error while reading config")
-        self.novelSpider = NovelDownloader()
-        self.mailSender = Kmail.Mail()
-        self.novels = []
-
-    def all_novels_latest_updates_2_kindle(self):
-        """
-        发送最近更新的小说(未阅读)到kindle中
-        :return:
-        """
-        novelNameList = []
-        for item in self.config["urls"]:
-            fname = self.novelSpider.get_latest_updates(item["name"], item["url"], item["count"])
-            if fname != "":
-                novelNameList.append(fname)
-
-        if len(novelNameList) == 0:
-            logging.info("nothing to send")
-        else:
-            logging.debug("%s wait to be send..." % novelNameList)
-            if self.mailSender.send2kindle(novelNameList):
-                scKey = config.server_chan()
-                ServerChan.send(scKey, "小说发送成功", self.mailSender.make_report_message(novelNameList))
-
-    def check_config(self, config):
-        """
-        加载配置文件
-        :param config:
-        :return:
-        """
-        # 判断配置文件结构
-        return True
-
-
-if __name__ == '__main__':
-    import doctest
-
-    doctest.testmod(verbose=True)

@@ -9,7 +9,7 @@ import re
 import sys
 
 sys.path.append("../")
-from sender import NovelHandler
+from sender import novel_handler
 
 logging.config.fileConfig("config/logging.conf")
 
@@ -70,7 +70,7 @@ class Spider:
                 name = novel.get_text()
                 match = pattern.search(link)
                 if match and check_is_dumplicate(is_dumplicate_set, link):
-                    l = [NovelHandler.BiqugeHandler.get_base_url() + link, name]
+                    l = [novel_handler.BiqugeHandler.get_base_url() + link, name]
                     linksList.append(l)
             except Exception as e:
                 logging.error("get_all_chapter_links:error  " + str(e))
