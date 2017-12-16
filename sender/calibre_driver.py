@@ -18,6 +18,9 @@ class Ebook:
         self.oeb = CreateOeb(log, None, self.opts)
         self.ebook_name = ebook_name
 
+        # 防止发出无内容的空书
+        self.has_content = False
+
         setMetaData(self.oeb, title=ebook_name)
 
         GENERATE_HTML_TOC = True
@@ -42,7 +45,22 @@ class Ebook:
         self.sections[book_name].append((chapter, "b", "c", "<body>" + content + "</body>"))
         return self
 
+    def add_sections(self, bookname, sections):
+        if not sections:
+            return
+
+        try:
+            for title, content in sections:
+                self.add_section(bookname, title, content)
+        except Exception as e:
+            print(e)
+
+        self.has_content = True
+
     def get_byte_book(self):
+        if not self.has_content:
+            return None
+
         toc_thumbnails = {"c": "https://www.google.com.hk/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"}
 
         InsertToc(self.oeb, self.sections, toc_thumbnails, self.insertHtmlToc, self.insertThumbnail)

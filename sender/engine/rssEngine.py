@@ -1,0 +1,2 @@
+def RssEngine(BaseEngine):
+    pass

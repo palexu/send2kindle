@@ -4,10 +4,14 @@ from __future__ import unicode_literals
 import logging
 import logging.config
 import smtplib
+
+from util import config
 from util import config as c
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+from util import server_chan
 
 logging.config.fileConfig("config/logging.conf")
 
@@ -28,6 +32,10 @@ class Mail:
         :param byteFile:
         :return: true or false
         """
+        if (not byteFile) or (not filename):
+            logging.error("文件名或文件内容为空,发送失败")
+            return
+
         host = self.mail_config["host"]
         if "port" in self.mail_config:
             port = self.mail_config["port"]
@@ -43,9 +51,11 @@ class Mail:
             # message = self.make_plain_mail("这是一封测试用的邮件")
             s.sendmail(self.mail_config["sender"], self.receiver, message.as_string())
             logging.info("[%s]发送成功" % filename)
+            server_chan.send("小说发送成功")
             return True
         except smtplib.SMTPDataError as re:
             logging.error("邮件发送失败:%s" % re)
+            server_chan.send("邮件发送失败:%s" % re)
             return False
         finally:
             s.close()

@@ -3,19 +3,16 @@
     {
       "name": "修真四万年",
       "url": "http://www.biqudao.com/bqge7946",
-      "per": "1d",
       "count": 1
     },
     {
-      "name": "into-cultivation",
+      "name": "走进修仙",
       "url": "http://www.biqudao.com/bqge11388",
-      "per": "1d",
       "count": 5
     },
     {
-      "name": "super-scholar",
+      "name": "重生之神级学霸",
       "url": "http://www.biqudao.com/bqge1081",
-      "per": "1d",
       "count": 5
     }
   ],
@@ -44,8 +41,8 @@
         "ssl": true
       }
     },
-    "receiver2": "cnxujunyu@kindle.cn",
-    "receiver": "cnxujunyu@gmail.com",
+    "receiver": "cnxujunyu@kindle.cn",
+    "receiver2": "cnxujunyu@gmail.com",
     "reportReceiver": "1098672878@qq.com",
     "init_host_config": "163",
     "subject": "",

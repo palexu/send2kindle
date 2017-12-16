@@ -4,7 +4,11 @@ with open("config/config.json") as config:
     settings = json.load(config)
 
 
-def url(key):
+def books():
+    return settings["urls"]
+
+
+def book(key):
     return settings["urls"][key]
 
 

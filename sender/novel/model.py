@@ -4,8 +4,8 @@
 class Book:
     """小说"""
 
-    def __init__(self):
-        self.book_name = ""
+    def __init__(self, bookname):
+        self.book_name = bookname
         self.sections = []
 
     def add_section(self, chapter_name, chapter_content):

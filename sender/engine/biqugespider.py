@@ -7,7 +7,9 @@ import logging
 import logging.config
 import re
 
+from sender import dal
 from sender.novel import novel_handler
+from sender.novel.model import Book
 
 logging.config.fileConfig("config/logging.conf")
 
@@ -27,7 +29,8 @@ def get_book_name_chi(index_page):
 
 class BiqugeSpider:
     """
-    爬取小说内容
+    爬取小说内容.
+    对于单网站的多小说通用
     """
 
     def __init__(self):
@@ -38,7 +41,57 @@ class BiqugeSpider:
             "Accept-Encoding": "gzip, deflate",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
-        self.book_name_chi = None
+
+    def get_update(self, bookname, pageUrl, checknum):
+        """
+        获得最近更新的小说
+        :param pageUrl:小说目录链接
+        :param checknum:小于该数字的更新数，不发送
+        :return:
+        """
+        book = Book(bookname)
+        dataService = dal.DataService(bookname)
+        now_at = dataService.now_read_at()
+
+        url_name_pair = self.get_new_chapter(pageUrl, now_at)
+        new_chapter_size = len(url_name_pair)
+
+        if new_chapter_size == 0:
+            logging.info("无新章节")
+            return None
+
+        newest_at = (url_name_pair[-1])[1]
+
+        logging.info("小说标题:%s" % bookname)
+        logging.info("当前已读到%s" % now_at)
+        logging.info("最新章节为%s" % newest_at)
+
+        if checknum > new_chapter_size:
+            logging.info("[暂不发送]:当前小说更新了%d章...[%d/%d]" % new_chapter_size, new_chapter_size, checknum)
+            return None
+
+        for title, content in self.download(url_name_pair):
+            book.add_section(title, content)
+
+        # dataService.now_read_at(newest_at)
+        return book
+
+    def get_new_chapter(self, page_url, nowat):
+        nowat = nowat.strip()
+
+        all_chapter = self.get_all_chapter_links(page_url)
+        url_name_pair = []
+
+        isnew = False
+        for url, name in all_chapter:
+            name = name.strip()
+            # 两个if顺序不能改变，即从当前阅读到的下一章开始添加
+            if isnew:
+                url_name_pair.append((url, name))
+            if name == nowat:
+                isnew = True
+
+        return url_name_pair
 
     def get_all_chapter_links(self, page_url):
         """
@@ -49,15 +102,11 @@ class BiqugeSpider:
         logging.info("正在访问小说目录链接:%s" % page_url)
         html = self.session.get(page_url, headers=self.headers).text.encode("ISO-8859-1").decode("utf8")
         bsObj = BeautifulSoup(html, "html.parser")
-
-        self.book_name_chi = get_book_name_chi(bsObj)
-        logging.debug("book name is %s" % self.book_name_chi)
+        linksList = []
 
         novelList = bsObj.findAll("dd")
-        linksList = []
         is_dumplicate_set = set()
-        regx = r'\.html'
-        pattern = re.compile(regx)
+        pattern = re.compile(r'\.html')
 
         # 适配biqudao的特殊页面，开头有12个最新章节
         novelList = novelList[12:]
@@ -68,13 +117,10 @@ class BiqugeSpider:
                 name = novel.get_text()
                 match = pattern.search(link)
                 if match and check_is_dumplicate(is_dumplicate_set, link):
-                    l = [novel_handler.BiqugeHandler.get_base_url() + link, name]
-                    linksList.append(l)
+                    linksList.append([novel_handler.BiqugeHandler.get_base_url() + link, name])
             except Exception as e:
                 logging.error("get_all_chapter_links:error  " + str(e))
-                pass
         linksList = linksList[:-1]
-        # logging.debug(linksList)
         return linksList
 
     def get_one_chapter(self, link):
@@ -100,7 +146,8 @@ class BiqugeSpider:
         :param bs_obj:
         :return: str 文章内容
         """
-        content = bs_obj.find("div", {"id": "content"}).get_text()
+        content = bs_obj.find("div", {"id": "content"})
+
         return self.format_content(content)
 
     def get_title_from_page(self, bsObj):
@@ -117,22 +164,16 @@ class BiqugeSpider:
         s = gbk_str.encode("gbk")
         return s
 
-    @staticmethod
-    def format_chapter(title, content):
-        """
-        格式化每一章的显示内容
-        :param title: 章节标题
-        :return: str 完整的章节内容
-        """
-        return title, content
-
     def format_content(self, content):
         """
         格式化文章内容
         :param content:
         :return:
         """
-        return content.strip().replace("  ", "\n")
+        c = ""
+        for text in content.stripped_strings:
+            c = c + text + "\n"
+        return c
 
     def download(self, url_name_pair):
         """
@@ -147,12 +188,3 @@ class BiqugeSpider:
                 yield self.get_one_chapter(url)
             except Exception as e:
                 logging.error(e)
-
-    def save_2_file(self, filename, content):
-        try:
-            filename = filename
-            f = open(filename, 'at', encoding="utf-8")
-            f.write(content)
-            f.close()
-        except Exception as e:
-            logging.error(e)

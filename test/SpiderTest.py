@@ -30,4 +30,4 @@ class ScrapyTest(unittest.TestCase):
 
         for link in settings:
             service.add_novel(link)
-        service.all_novels_latest_updates_2_kindle()
+        service.push_updates()
