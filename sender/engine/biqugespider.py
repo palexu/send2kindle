@@ -6,10 +6,8 @@ import requests
 import logging
 import logging.config
 import re
-import sys
 
-sys.path.append("../")
-from sender import novel_handler
+from sender.novel import novel_handler
 
 logging.config.fileConfig("config/logging.conf")
 
@@ -27,7 +25,7 @@ def get_book_name_chi(index_page):
     return index_page.find("div", {"id": "info"}).h1.get_text()
 
 
-class Spider:
+class BiqugeSpider:
     """
     爬取小说内容
     """
@@ -94,7 +92,7 @@ class Spider:
         title = self.get_title_from_page(bs_obj)
 
         # 格式化并返回
-        return self.format_chapter(title, content)
+        return title, content
 
     def get_content_from_page(self, bs_obj):
         """
@@ -126,10 +124,7 @@ class Spider:
         :param title: 章节标题
         :return: str 完整的章节内容
         """
-        novel = "\n>>>" + title + "<<<\n"
-        novel = novel + content
-        # logging.debug(novel)
-        return novel
+        return title, content
 
     def format_content(self, content):
         """
@@ -139,20 +134,17 @@ class Spider:
         """
         return content.strip().replace("  ", "\n")
 
-    def download(self, links, filename):
+    def download(self, url_name_pair):
         """
         根据抓取links中的所有章节
-        :param links:待抓取的章节链接
+        :param url_name_pair:待抓取的章节链接
         :param filename:以该文件名保存小说
         :return:无
         """
-        for link in links:
+        for url, name in url_name_pair:
             try:
-                url = link[0]
-                logging.info("download:%s" % link[1])
-                content = self.get_one_chapter(url)
-                self.save_2_file(filename, content)
-                # time.sleep(500)
+                logging.info("download:%s" % name)
+                yield self.get_one_chapter(url)
             except Exception as e:
                 logging.error(e)
 

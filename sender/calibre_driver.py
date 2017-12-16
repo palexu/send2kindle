@@ -7,41 +7,48 @@ from collections import OrderedDict
 from calibre.ebooks.conversion.mobioutput import MOBIOutput
 from calibre.ebooks.conversion.epuboutput import EPUBOutput
 from calibre.utils.bytestringio import byteStringIO
-from sender.makeoeb import *
+from util.makeoeb import *
 
 log = logging.getLogger()
 
-opts = None
-oeb = None
 
-opts = getOpts()
-oeb = CreateOeb(log, None, opts)
-setMetaData(oeb, title="heello")
+class Ebook:
+    def __init__(self, ebook_name):
+        self.opts = getOpts()
+        self.oeb = CreateOeb(log, None, self.opts)
+        self.ebook_name = ebook_name
 
-GENERATE_HTML_TOC = True
-GENERATE_TOC_THUMBNAIL = True
+        setMetaData(self.oeb, title=ebook_name)
 
-insertHtmlToc = GENERATE_HTML_TOC
-insertThumbnail = GENERATE_TOC_THUMBNAIL
+        GENERATE_HTML_TOC = True
+        GENERATE_TOC_THUMBNAIL = True
 
-sections = OrderedDict()
-sections.setdefault("科幻", [])
-sections["科幻"].append(("神级学霸", "b", "c",
-                       "<body>学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸学霸</body>"))
-sections["科幻"].append(("小说2", "b", "c", "<body>的滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答的</body>"))
-sections.setdefault("科技", [])
-sections["科技"].append(
-    ("未来的人", "b", "c", "<body>未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人未来的人</body>"))
-sections["科技"].append(("未来的人", "b", "c", "<body>的滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答滴滴答答的</body>"))
-toc_thumbnails = {"c": "https://www.google.com.hk/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"}
+        self.insertHtmlToc = GENERATE_HTML_TOC
+        self.insertThumbnail = GENERATE_TOC_THUMBNAIL
 
-InsertToc(oeb, sections, toc_thumbnails, insertHtmlToc, insertThumbnail)
+        self.sections = OrderedDict()
+        self.book = MOBIOutput()
 
-oIO = byteStringIO()
-o = MOBIOutput()
+    def as_epub(self):
+        self.book = EPUBOutput()
+        return self
 
-o.convert(oeb, oIO, opts, log)
+    def as_mobi(self):
+        self.book = MOBIOutput()
+        return self
 
-print(oIO)
-with open("bbb.mobi", "wb+") as f:
-    f.write(oIO.getvalue())
+    def add_section(self, book_name, chapter, content):
+        self.sections.setdefault(book_name, [])
+        self.sections[book_name].append((chapter, "b", "c", "<body>" + content + "</body>"))
+        return self
+
+    def get_byte_book(self):
+        toc_thumbnails = {"c": "https://www.google.com.hk/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"}
+
+        InsertToc(self.oeb, self.sections, toc_thumbnails, self.insertHtmlToc, self.insertThumbnail)
+
+        byte_book = byteStringIO()
+
+        self.book.convert(self.oeb, byte_book, self.opts, log)
+
+        return byte_book.getvalue()

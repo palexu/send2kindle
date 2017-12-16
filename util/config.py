@@ -15,4 +15,4 @@ def mail(key=None):
 
 
 def server_chan():
-    return settings["server_chan"]["scKey"]
+    return settings["serverChan"]["scKey"]

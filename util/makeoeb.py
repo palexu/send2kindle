@@ -10,7 +10,7 @@ import calibre.utils.resources
 from calibre.ebooks.conversion.mobioutput import MOBIOutput
 from calibre.ebooks.conversion.epuboutput import EPUBOutput
 from calibre.utils.bytestringio import byteStringIO
-from lib.config import *
+from .kindle_ear_config import *
 
 
 def MimeFromFilename(f):

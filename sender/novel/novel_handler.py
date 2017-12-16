@@ -1,6 +1,7 @@
 # coding=utf-8
 
-def get_novel_handler(domain):
+
+def dispacher(domain):
     """主处理器，分配对应的处理器给页面"""
     handler = []
     # 添加handler到列表中
@@ -22,15 +23,5 @@ class BiqugeHandler:
     def get_base_url():
         return "http://www.biqudao.com"
 
-    def get_novel_name_chi(self, index_page):
-        return index_page.find("div", {"id": "info"}).h1.get_text()
-
-    def get_novel_name_en(self, page):
-        return "en_name"
-
     def chapter_filter(self, list):
         return list[12:]
-
-
-if __name__ == '__main__':
-    get_novel_handler("www.biqudao.com")

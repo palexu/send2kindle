@@ -1,10 +1,10 @@
 {
   "urls": [
     {
-      "name": "forty-thousand-years",
+      "name": "修真四万年",
       "url": "http://www.biqudao.com/bqge7946",
       "per": "1d",
-      "count": 10
+      "count": 1
     },
     {
       "name": "into-cultivation",
@@ -35,13 +35,21 @@
         "sender": "cnxujunyu@sina.com",
         "password": "125108xu",
         "host": "smtp.sina.com"
+      },
+      "me": {
+        "sender": "sender@send2kindle.palexu.top",
+        "password": "xujunyu520",
+        "host": "mail.palexu.top",
+        "port": 587,
+        "ssl": true
       }
     },
-    "receiver": "cnxujunyu@kindle.cn",
+    "receiver2": "cnxujunyu@kindle.cn",
+    "receiver": "cnxujunyu@gmail.com",
     "reportReceiver": "1098672878@qq.com",
-    "init_host_config": "126",
+    "init_host_config": "163",
     "subject": "",
-    "msgcontent": ""
+    "msgcontent": "deliver by palexu"
   },
   "serverChan": {
     "scKey": "SCU11255T9aac1a1f33b21e14d151caa16d6b424d59a66f9a1264f"

@@ -2,7 +2,7 @@ import unittest
 import sys
 
 sys.path.append("../")
-from sender import sql
+from sender import dal
 from sender import Novel
 import unittest.mock as mock
 
@@ -20,8 +20,8 @@ class ScrapyTest(unittest.TestCase):
         settings = [
             ["http://www.shumilou.co/zhongshengzhishenjixueba", 0],
         ]
-        sql.set_read_at("重生之神级学霸", "第1085章 优势")
-        sql.test_delChapter()
+        dal.set_read_at("重生之神级学霸", "第1085章 优势")
+        dal.test_delChapter()
 
         service = Novel.Service()
         service.mailSender = mock_Mail()

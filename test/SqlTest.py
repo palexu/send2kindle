@@ -2,12 +2,12 @@ import unittest
 import sys
 
 sys.path.append("../")
-from sender import sql
+from sender import dal
 
 
 class ReadedDaoTest(unittest.TestCase):
     def setUp(self):
-        self.dao = sql.ReadedDao()
+        self.dao = dal.ReadedDao()
         self.name = "_test_nove"
         self.dao.add_novel(self.name)
 
@@ -34,7 +34,7 @@ class ReadedDaoTest(unittest.TestCase):
 
 class ChapterDaoTest(unittest.TestCase):
     def setUp(self):
-        self.dao = sql.ChapterDao()
+        self.dao = dal.ChapterDao()
         self.name = "_testChapter"
         self.title = "100"
         self.dao.add_chapter(self.name, self.title)
