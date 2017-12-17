@@ -4,7 +4,6 @@ import os
 from util.config import *
 
 
-
 class ReadedDao:
     def __init__(self):
         self.table = "readed"
@@ -137,6 +136,54 @@ class ChapterDao:
                 conn.execute("""
                     delete from %s
                     WHERE bookname =? AND chaTitle =?
+                """ % self.table, param)
+                conn.commit()
+        except Exception as e:
+            logger.error(e)
+
+
+class LogDAO:
+    def __init__(self):
+        self.table = "task_log"
+
+    def insert(self, biz_no, content):
+        from datetime import datetime
+        try:
+            with sqlite3.connect(db) as conn:
+                param = (biz_no, content, datetime.now())
+                conn.execute("""
+                   insert into %s(biz_no,content,gmt_create)
+                   VALUES (?,?,?)
+                """ % self.table, param)
+                conn.commit()
+        except Exception as e:
+            logger.error(e)
+
+
+class SendTaskDAO:
+    def __init__(self):
+        self.table = "send_task"
+
+    def insert(self, biz_no, start="", status=0):
+        try:
+            with sqlite3.connect(db) as conn:
+                param = (biz_no, start, status)
+                conn.execute("""
+                   insert into %s(biz_no,start,status)
+                   VALUES (?,?,?)
+                """ % self.table, param)
+                conn.commit()
+        except Exception as e:
+            logger.error(e)
+
+    def update(self, biz_no, end, status=1):
+        try:
+            with sqlite3.connect(db) as conn:
+                param = (end, status, biz_no)
+                conn.execute("""
+                   update %s
+                   set end=?,status=?
+                   where biz_no=?
                 """ % self.table, param)
                 conn.commit()
         except Exception as e:

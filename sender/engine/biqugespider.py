@@ -39,6 +39,11 @@ class BiqugeSpider:
             "Accept-Encoding": "gzip, deflate",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
+        self._task_service = dal.TaskDataService("spider")
+        self._task_service.start_task()
+
+    def __del__(self):
+        self._task_service.end_task(1)
 
     def get_update(self, bookname, pageUrl, checknum):
         """
@@ -55,17 +60,18 @@ class BiqugeSpider:
         new_chapter_size = len(url_name_pair)
 
         if new_chapter_size == 0:
-            logger.info("无新章节")
+            self._task_service.info("无新章节", logger)
             return None
 
         newest_at = (url_name_pair[-1])[1]
 
-        logger.info("小说标题:%s" % bookname)
-        logger.info("当前已读到%s" % now_at)
-        logger.info("最新章节为%s" % newest_at)
+        self._task_service.info("小说标题:%s" % bookname, logger)
+        self._task_service.info("当前已读到%s" % now_at, logger)
+        self._task_service.info("最新章节为%s" % newest_at, logger)
 
         if checknum > new_chapter_size:
-            logger.info("[暂不发送]:当前小说更新了%d章...[%d/%d]" % (new_chapter_size, new_chapter_size, checknum))
+            self._task_service.info(
+                "[暂不发送]:当前小说更新了%d章...[%d/%d]" % (new_chapter_size, new_chapter_size, checknum), logger)
             return None
 
         for title, content in self.download(url_name_pair):
@@ -97,7 +103,7 @@ class BiqugeSpider:
         :param page_url: 小说的目录链接
         :return: list[(str)link]
         """
-        logger.info("正在访问小说目录链接:%s" % page_url)
+        self._task_service.info("正在访问小说目录链接:%s" % page_url, logger)
         html = self.session.get(page_url, headers=self.headers).text.encode("ISO-8859-1").decode("utf8")
         bsObj = BeautifulSoup(html, "html.parser")
         linksList = []
@@ -117,7 +123,7 @@ class BiqugeSpider:
                 if match and check_is_dumplicate(is_dumplicate_set, link):
                     linksList.append([novel_handler.BiqugeHandler.get_base_url() + link, name])
             except Exception as e:
-                logging.error("get_all_chapter_links:error  " + str(e))
+                self._task_service.error("get_all_chapter_links:error  " + str(e), logger)
         linksList = linksList[:-1]
         return linksList
 
@@ -182,7 +188,7 @@ class BiqugeSpider:
         """
         for url, name in url_name_pair:
             try:
-                logger.info("download:%s" % name)
+                self._task_service.info("download:%s" % name, logger)
                 yield self.get_one_chapter(url)
             except Exception as e:
-                logging.error(e)
+                self._task_service.error(e, logger)

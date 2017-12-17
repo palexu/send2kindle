@@ -3,6 +3,7 @@ import logging.config
 
 # ======================  db ============================
 db = "db/novel.db"
+confg_path = "config.json"
 
 # ====================log config ========================
 logging_config = dict(
@@ -25,7 +26,7 @@ logging.config.dictConfig(logging_config)
 logger = logging.getLogger()
 
 # =====================book config========================
-with open("config.json") as f:
+with open(confg_path) as f:
     settings = json.load(f)
 
 
