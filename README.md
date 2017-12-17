@@ -1,6 +1,12 @@
 # send2kindle
 用于获取小说并推送到kindle。
 
+## 本次更新
+
+- 现在可以生成精美的mobi格式电子书并推送到kindle上。
+- 添加对docker-compose的支持，一键启动
+- 优化配置文件
+
 ## TODO
 
 - 一键初始化
