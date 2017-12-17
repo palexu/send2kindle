@@ -1,16 +1,14 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import logging
 import logging.config
 import smtplib
-
-from util import config
-from util import config as c
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from util import config as c
 from util import server_chan
 
 logging.config.fileConfig("config/logging.conf")
@@ -33,7 +31,7 @@ class Mail:
         :return: true or false
         """
         if (not byteFile) or (not filename):
-            logging.error("文件名或文件内容为空,发送失败")
+            logging.error(u"文件名或文件内容为空,发送失败")
             return
 
         host = self.mail_config["host"]
@@ -50,12 +48,12 @@ class Mail:
             message = self.make_kindle_mail(filename, byteFile)
             # message = self.make_plain_mail("这是一封测试用的邮件")
             s.sendmail(self.mail_config["sender"], self.receiver, message.as_string())
-            logging.info("[%s]发送成功" % filename)
-            server_chan.send("小说发送成功")
+            logging.info(u"[%s]发送成功" % filename)
+            server_chan.send(u"小说发送成功")
             return True
         except smtplib.SMTPDataError as re:
-            logging.error("邮件发送失败:%s" % re)
-            server_chan.send("邮件发送失败:%s" % re)
+            logging.error(u"邮件发送失败:%s" % re)
+            server_chan.send(u"邮件发送失败:%s" % re)
             return False
         finally:
             s.close()
@@ -74,13 +72,13 @@ class Mail:
         message.attach(MIMEText(self.msgcontent, 'plain', 'utf-8'))
         message.attach(self.getAtt(filename, bytefile))
 
-        print("=================================")
-        print("using mail config:%s" % self.mail_config)
-        print("subject: %s" % message['Subject'])
-        print("from:    %s" % message['from'])
-        print("to:      %s" % message['to'])
-        print("邮件内容  :%s" % self.msgcontent)
-        print("=================================")
+        logging.info("=================================")
+        logging.info("using mail config:%s" % self.mail_config)
+        logging.info("subject: %s" % message['Subject'])
+        logging.info("from:    %s" % message['from'])
+        logging.info("to:      %s" % message['to'])
+        logging.info("邮件内容  :%s" % self.msgcontent)
+        logging.info("=================================")
 
         return message
 

@@ -1,0 +1,5 @@
+send2kindle:
+    image: 'send2kindle'
+    volumes:
+        - /Users/xj/code/python/spider/send2kindle:/app/send2kindle
+        

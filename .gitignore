@@ -10,6 +10,6 @@ log
 .idea/*
 .python-version
 *.bak
-!config.yaml.bak
-config.yaml
+!config.json.bak
+config.json
 

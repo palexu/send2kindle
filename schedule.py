@@ -1,13 +1,13 @@
-import sys
-from apscheduler.schedulers.blocking import BlockingScheduler
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-sys.path.append("../")
+from apscheduler.schedulers.blocking import BlockingScheduler
 import main
 
 
 def run():
     sched = BlockingScheduler()
-    sched.add_job(main.run, 'cron', hour="7,11,17")
+    sched.add_job(main.run, "cron", hour="7,11,17")
 
     try:
         sched.start()
