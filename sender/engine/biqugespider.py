@@ -73,7 +73,7 @@ class BiqugeSpider:
         for title, content in self.download(url_name_pair):
             book.add_section(title, content)
 
-        # dataService.now_read_at(newest_at)
+        dataService.now_read_at(newest_at)
         return book
 
     def get_new_chapter(self, page_url, nowat):
