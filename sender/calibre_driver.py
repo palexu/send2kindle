@@ -1,21 +1,18 @@
 # coding=utf-8
 from __future__ import unicode_literals
 
-import logging
-
 from collections import OrderedDict
 from calibre.ebooks.conversion.mobioutput import MOBIOutput
 from calibre.ebooks.conversion.epuboutput import EPUBOutput
 from calibre.utils.bytestringio import byteStringIO
 from util.makeoeb import *
-
-log = logging.getLogger()
+from util.config import *
 
 
 class Ebook:
     def __init__(self, ebook_name):
         self.opts = getOpts()
-        self.oeb = CreateOeb(log, None, self.opts)
+        self.oeb = CreateOeb(logger, None, self.opts)
         self.ebook_name = ebook_name
 
         # 防止发出无内容的空书
@@ -67,6 +64,6 @@ class Ebook:
 
         byte_book = byteStringIO()
 
-        self.book.convert(self.oeb, byte_book, self.opts, log)
+        self.book.convert(self.oeb, byte_book, self.opts, logger)
 
         return byte_book.getvalue()

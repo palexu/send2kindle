@@ -1,12 +1,8 @@
 # coding=utf-8
 import sqlite3
-import traceback
-import logging
 import os
-import logging.config
+from util.config import *
 
-logging.config.fileConfig("config/logging.conf")
-db = os.path.abspath(r'db/novel.db')
 
 
 class ReadedDao:
@@ -31,7 +27,7 @@ class ReadedDao:
                     """ % self.table, param)
                 conn.commit()
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
 
     def del_novel(self, bookname):
         try:
@@ -44,7 +40,7 @@ class ReadedDao:
                     """ % self.table, param)
                 conn.commit()
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
 
     def load_novel(self, bookname):
         try:
@@ -59,7 +55,7 @@ class ReadedDao:
                 rs = cursor.fetchone()
                 return rs
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
 
     def is_book_exits(self, bookname):
         try:
@@ -70,7 +66,7 @@ class ReadedDao:
     def load_read_at(self, bookname):
         "只用于查询下一个章节，只有当新的章节被推送成功时，才能修改at的值"
         if not self.is_book_exits(bookname):
-            logging.info(bookname + " not exits,create one")
+            logger.info(bookname + " not exits,create one")
             self.add_novel(bookname)
             return 1
         try:
@@ -82,12 +78,12 @@ class ReadedDao:
                     """ % self.table, param)
                 return cursor.fetchone()[0]
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
 
     def set_read_at(self, bookname, readAt):
         "设置最后推送的章节数"
         if not self.is_book_exits(bookname):
-            logging.info(bookname + " not exits,create one")
+            logger.info(bookname + " not exits,create one")
             self.add_novel(bookname, bid=0, at=readAt)
         try:
             with sqlite3.connect(db) as conn:
@@ -99,7 +95,7 @@ class ReadedDao:
                     """ % self.table, param)
                 conn.commit()
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
 
 
 class ChapterDao:
@@ -116,7 +112,7 @@ class ChapterDao:
                     """ % self.table, param)
                 conn.commit()
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
 
     def has_chapter(self, bookname, chaTitle):
         try:
@@ -132,7 +128,7 @@ class ChapterDao:
                 else:
                     return False
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
 
     def delete_chapter(self, bookname, chaTitle):
         try:
@@ -144,4 +140,4 @@ class ChapterDao:
                 """ % self.table, param)
                 conn.commit()
         except Exception as e:
-            logging.error(e)
+            logger.error(e)

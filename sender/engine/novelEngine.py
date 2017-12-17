@@ -1,16 +1,12 @@
 # coding=utf-8
 from __future__ import unicode_literals
 
-import logging
-import logging.config
-
 from sender import calibre_driver
 from sender.engine import biqugespider
 from sender.engine.base import BaseEngine
-from util import config
+from util.config import *
 from util import kmail
 
-logging.config.fileConfig("config/logging.conf")
 
 
 class NovelEngine(BaseEngine):
@@ -19,7 +15,7 @@ class NovelEngine(BaseEngine):
     """
 
     def __init__(self):
-        self.books_config = config.books()
+        self.books_config = books()
         self.mailSender = kmail.Mail()
 
     def push_updates(self):
@@ -41,7 +37,7 @@ class NovelEngine(BaseEngine):
                 if book and len(book.sections) > 0:
                     ebook.add_sections(book.book_name, book.sections)
             except Exception as e:
-                logging.error(e)
+                logger.error(e)
 
 
 def dispacher(config):

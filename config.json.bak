@@ -1,5 +1,5 @@
 {
-  "urls": [
+  "books": [
     {
       "name": "修真四万年",
       "url": "http://www.biqudao.com/bqge7946",
@@ -13,14 +13,11 @@
   ],
   "mail": {
     "hostconf": {
-      "163": {
         "sender": "xxxxx@163.com",
         "password": "xxxxx",
         "host": "smtp.163.com"
-      }
     },
     "receiver": "xxxxxx@kindle.cn",
-    "init_host_config": "163",
     "subject": "",
     "msgcontent": "deliver by xxxx"
   },

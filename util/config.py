@@ -1,22 +1,48 @@
 import json
+import logging.config
 
-with open("config/config.json") as config:
-    settings = json.load(config)
+# ======================  db ============================
+db = "db/novel.db"
+
+# ====================log config ========================
+logging_config = dict(
+    version=1,
+    formatters={
+        'f': {'format':
+                  '%(asctime)s - %(name)s - %(levelname)s - %(message)s'}
+    },
+    handlers={
+        'h': {'class': 'logging.StreamHandler',
+              'formatter': 'f',
+              'level': logging.DEBUG}
+    },
+    root={
+        'handlers': ['h'],
+        'level': logging.INFO,
+    },
+)
+logging.config.dictConfig(logging_config)
+logger = logging.getLogger()
+
+# =====================book config========================
+with open("config.json") as f:
+    settings = json.load(f)
 
 
 def books():
-    return settings["urls"]
+    return settings["books"]
 
 
 def book(key):
     return settings["urls"][key]
 
 
-def mail(key=None):
-    if key is None:
-        return settings["mail"]
-    return settings["mail"][key]
+def mail():
+    return settings["mail"]
 
 
 def server_chan():
-    return settings["serverChan"]["scKey"]
+    try:
+        return settings["serverChan"]["scKey"]
+    except:
+        return ""

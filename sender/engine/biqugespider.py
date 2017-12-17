@@ -4,14 +4,12 @@ from __future__ import unicode_literals
 from bs4 import BeautifulSoup
 import requests
 import logging
-import logging.config
 import re
 
 from sender import dal
 from sender.novel import novel_handler
 from sender.novel.model import Book
-
-logging.config.fileConfig("config/logging.conf")
+from util.config import *
 
 
 def check_is_dumplicate(set, obj):
@@ -57,17 +55,17 @@ class BiqugeSpider:
         new_chapter_size = len(url_name_pair)
 
         if new_chapter_size == 0:
-            logging.info("无新章节")
+            logger.info("无新章节")
             return None
 
         newest_at = (url_name_pair[-1])[1]
 
-        logging.info("小说标题:%s" % bookname)
-        logging.info("当前已读到%s" % now_at)
-        logging.info("最新章节为%s" % newest_at)
+        logger.info("小说标题:%s" % bookname)
+        logger.info("当前已读到%s" % now_at)
+        logger.info("最新章节为%s" % newest_at)
 
         if checknum > new_chapter_size:
-            logging.info("[暂不发送]:当前小说更新了%d章...[%d/%d]" % new_chapter_size, new_chapter_size, checknum)
+            logger.info("[暂不发送]:当前小说更新了%d章...[%d/%d]" % (new_chapter_size, new_chapter_size, checknum))
             return None
 
         for title, content in self.download(url_name_pair):
@@ -99,7 +97,7 @@ class BiqugeSpider:
         :param page_url: 小说的目录链接
         :return: list[(str)link]
         """
-        logging.info("正在访问小说目录链接:%s" % page_url)
+        logger.info("正在访问小说目录链接:%s" % page_url)
         html = self.session.get(page_url, headers=self.headers).text.encode("ISO-8859-1").decode("utf8")
         bsObj = BeautifulSoup(html, "html.parser")
         linksList = []
@@ -184,7 +182,7 @@ class BiqugeSpider:
         """
         for url, name in url_name_pair:
             try:
-                logging.info("download:%s" % name)
+                logger.info("download:%s" % name)
                 yield self.get_one_chapter(url)
             except Exception as e:
                 logging.error(e)

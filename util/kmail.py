@@ -1,26 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import logging
-import logging.config
 import smtplib
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from util import config as c
+from util.config import *
 from util import server_chan
-
-logging.config.fileConfig("config/logging.conf")
 
 
 class Mail:
     def __init__(self):
-        config = c.mail()
-        init_host = config["init_host_config"]
-        self.mail_config = config["hostconf"][init_host]
+        config = mail()
+        self.mail_config = config["hostconf"]
         self.receiver = config["receiver"]
-        self.reportReceiver = config["reportReceiver"]
         self.subject = config["subject"]
         self.msgcontent = config["msgcontent"]
 
@@ -31,7 +25,7 @@ class Mail:
         :return: true or false
         """
         if (not byteFile) or (not filename):
-            logging.error(u"文件名或文件内容为空,发送失败")
+            logger.error(u"文件名或文件内容为空,发送失败")
             return
 
         host = self.mail_config["host"]
@@ -48,11 +42,11 @@ class Mail:
             message = self.make_kindle_mail(filename, byteFile)
             # message = self.make_plain_mail("这是一封测试用的邮件")
             s.sendmail(self.mail_config["sender"], self.receiver, message.as_string())
-            logging.info(u"[%s]发送成功" % filename)
+            logger.info(u"[%s]发送成功" % filename)
             server_chan.send(u"小说发送成功")
             return True
         except smtplib.SMTPDataError as re:
-            logging.error(u"邮件发送失败:%s" % re)
+            logger.error(u"邮件发送失败:%s" % re)
             server_chan.send(u"邮件发送失败:%s" % re)
             return False
         finally:
@@ -72,13 +66,13 @@ class Mail:
         message.attach(MIMEText(self.msgcontent, 'plain', 'utf-8'))
         message.attach(self.getAtt(filename, bytefile))
 
-        logging.info("=================================")
-        logging.info("using mail config:%s" % self.mail_config)
-        logging.info("subject: %s" % message['Subject'])
-        logging.info("from:    %s" % message['from'])
-        logging.info("to:      %s" % message['to'])
-        logging.info("邮件内容  :%s" % self.msgcontent)
-        logging.info("=================================")
+        logger.info("=================================")
+        logger.info("using mail config:%s" % self.mail_config)
+        logger.info("subject: %s" % message['Subject'])
+        logger.info("from:    %s" % message['from'])
+        logger.info("to:      %s" % message['to'])
+        logger.info("邮件内容  :%s" % self.msgcontent)
+        logger.info("=================================")
 
         return message
 
@@ -86,7 +80,7 @@ class Mail:
         message = MIMEText(content, 'plain', 'utf-8')
         message['Subject'] = "[sender] report"
         message['from'] = self.mail_config["sender"]
-        message['to'] = self.reportReceiver
+        message['to'] = self.receiver
 
         return message
 
@@ -99,7 +93,7 @@ class Mail:
             att = MIMEText(bytefile, 'base64', 'utf-8')
             att["Content-Type"] = 'application/octet-stream'
             att["Content-Disposition"] = "attachment;filename=\"%s\"" % Header(filename, 'utf-8')
-            logging.debug("make %s" % filename)
+            logger.debug("make %s" % filename)
             return att
         except Exception as e:
-            logging.warning(e)
+            logger.warning(e)
