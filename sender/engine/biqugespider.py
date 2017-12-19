@@ -3,13 +3,13 @@ from __future__ import unicode_literals
 
 from bs4 import BeautifulSoup
 import requests
-import logging
 import re
 
 from sender import dal
+from sender.dal.model import Book
+from sender.dal.service import BookMeta, TaskDataService, DataService
 from sender.novel import novel_handler
-from sender.novel.model import Book
-from util.config import *
+from sender.util.config import *
 
 
 def check_is_dumplicate(set, obj):
@@ -39,7 +39,7 @@ class BiqugeSpider:
             "Accept-Encoding": "gzip, deflate",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
-        self._task_service = dal.TaskDataService("spider")
+        self._task_service = TaskDataService("spider")
         self._task_service.start_task()
 
     def __del__(self):
@@ -53,7 +53,7 @@ class BiqugeSpider:
         :return:
         """
         book = Book(bookname)
-        dataService = dal.DataService(bookname)
+        dataService = DataService(bookname)
         now_at = dataService.now_read_at()
 
         url_name_pair = self.get_new_chapter(pageUrl, now_at)

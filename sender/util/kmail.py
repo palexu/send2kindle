@@ -6,8 +6,8 @@ from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from util.config import *
-from util import server_chan
+from sender.util.config import *
+from sender.util import server_chan
 
 
 class Mail:

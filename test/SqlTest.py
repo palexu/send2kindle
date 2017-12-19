@@ -3,7 +3,6 @@ import unittest
 
 from sender import dal
 
-
 # class ReadedDaoTest(unittest.TestCase):
 #     def setUp(self):
 #         self.dao = dal.ReadedDao()
@@ -45,17 +44,37 @@ from sender import dal
 #         self.assertTrue(self.dao.has_chapter(self.name, self.title))
 #         self.assertFalse(self.dao.has_chapter(self.name, "sldkfjowihf"))
 #         self.assertFalse(self.dao.has_chapter("sflkjwefoi", self.title))
+#
+# class LogDaoTest(unittest.TestCase):
+#     def test_log(self):
+#         dao = dal.LogDAO()
+#         dao.insert("1", "hhhhh")
+#
+#
+# class SendTaskTest(unittest.TestCase):
+#     def test_insert(self):
+#         dao = dal.SendTaskDAO()
+#         dao.insert("2017-12-12 12:00", "2017-12-12 12:00")
+from sender.dal import BookDAO
 
-class LogDaoTest(unittest.TestCase):
-    def test_log(self):
-        dao = dal.LogDAO()
-        dao.insert("1", "hhhhh")
 
+class BookDAOTest(unittest.TestCase):
+    def setUp(self):
+        self.dao = BookDAO()
 
-class SendTaskTest(unittest.TestCase):
     def test_insert(self):
-        dao = dal.SendTaskDAO()
-        dao.insert("2017-12-12 12:00", "2017-12-12 12:00")
+        self.dao.insert("t", "http://t", author="t", limit="3", send_rate="t", status=2, remark="t")
+
+    def test_update(self):
+        self.dao.update(1, "h", "dd")
+
+    def test_delete(self):
+        self.dao.delete(3)
+
+    def test_select_all(self):
+        bs = self.dao.select_all()
+        for b in bs:
+            print(b)
 
 
 if __name__ == '__main__':

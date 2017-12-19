@@ -1,6 +1,6 @@
 # coding=utf8
 import requests
-import util.config as config
+import sender.util.config as config
 
 
 def send(title, message=None):

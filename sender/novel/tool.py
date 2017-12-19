@@ -1,6 +1,6 @@
 # coding=utf-8
 import re
-from util import cnconvert as cn2
+from sender.util import cnconvert as cn2
 
 
 def suffix(start, end):

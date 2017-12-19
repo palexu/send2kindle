@@ -1,6 +1,8 @@
-# coding=u
+# coding=utf-8
 from __future__ import unicode_literals
+from engine.novelEngine import NovelEngine
 
 
-class Service:
-    pass
+def run():
+    ne = NovelEngine()
+    ne.get_updates()

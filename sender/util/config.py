@@ -2,7 +2,7 @@ import json
 import logging.config
 
 # ======================  db ============================
-db = "db/novel.db"
+db_path = "db/novel.db"
 confg_path = "config.json"
 
 # ====================log config ========================

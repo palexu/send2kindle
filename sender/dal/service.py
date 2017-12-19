@@ -23,6 +23,27 @@ class DataService:
             self.chapterDao.add_chapter(self.book_name, name)
 
 
+class BookService:
+    def __init__(self):
+        self.bookDAO = BookDAO()
+
+    def add_book(self, book):
+        """
+        :param book:dict()
+        :return:
+        """
+        self.bookDAO.insert()
+
+    def select_all(self):
+        return self.bookDAO.select_all()
+
+    def delete_by_id(self, id):
+        self.bookDAO.delete(id)
+
+    def update_by_id(self, book):
+        pass
+
+
 class TaskDataService:
     def __init__(self, task_type):
         """

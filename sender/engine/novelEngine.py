@@ -2,11 +2,12 @@
 from __future__ import unicode_literals
 
 from sender import calibre_driver
+from sender.dal.dao import BookMeta
+from sender.dal.service import BookService
 from sender.engine import biqugespider
 from sender.engine.base import BaseEngine
-from util.config import *
-from util import kmail
-
+from sender.util.config import *
+from sender.util import kmail
 
 
 class NovelEngine(BaseEngine):
@@ -15,7 +16,7 @@ class NovelEngine(BaseEngine):
     """
 
     def __init__(self):
-        self.books_config = books()
+        self.books_config = BookService().select_all()
         self.mailSender = kmail.Mail()
 
     def push_updates(self):
@@ -45,9 +46,9 @@ def dispacher(config):
     # 暂时只支持这个呗
     spider = biqugespider.BiqugeSpider()
     for item in config:
-        bookname = item["name"]
-        url = item["url"]
-        count = item["count"]
+        bookname = item.name
+        url = item.url
+        count = item.limit
 
         book = spider.get_update(bookname, url, count)
         if book:

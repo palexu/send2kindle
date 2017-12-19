@@ -2,11 +2,8 @@
 from __future__ import unicode_literals
 
 from collections import OrderedDict
-from calibre.ebooks.conversion.mobioutput import MOBIOutput
-from calibre.ebooks.conversion.epuboutput import EPUBOutput
-from calibre.utils.bytestringio import byteStringIO
-from util.makeoeb import *
-from util.config import *
+from sender.util.makeoeb import *
+from sender.util.config import *
 
 
 class Ebook:

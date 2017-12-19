@@ -1,145 +1,83 @@
 # coding=utf-8
 import sqlite3
-import os
-from util.config import *
+
+from peewee import *
+from playhouse.sqlite_ext import SqliteExtDatabase
+from sender.util.config import *
+from datetime import datetime
+
+db = SqliteExtDatabase(db_path)
+
+
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+
+class BookMeta(BaseModel):
+    """
+    对应于书籍元信息
+    """
+    id = IntegerField(primary_key=True)
+    name = CharField()
+    author = CharField()
+    url = CharField()
+    limit = IntegerField()
+    read_at = TextField()
+    send_rate = CharField()
+    status = IntegerField()
+    remark = TextField()
+
+    class Meta:
+        db_table = "book"
 
 
 class ReadedDao:
     def __init__(self):
-        self.table = "readed"
-
-    def add_novel(self, bookname, bid=None, at=""):
-        """
-        默认设置bookid自增，at为""
-        :param bookname:书名
-        :param bid:书id
-        :param at:书读到章节
-        :return:None
-        """
-        try:
-            with sqlite3.connect(db) as conn:
-                param = (bid, bookname, at,)
-                conn.execute("""
-                    INSERT INTO
-                    %s(bookid, bookname, at)
-                    VALUES(?,?,?)
-                    """ % self.table, param)
-                conn.commit()
-        except Exception as e:
-            logger.error(e)
+        pass
 
     def del_novel(self, bookname):
-        try:
-            with sqlite3.connect(db) as conn:
-                param = (bookname,)
-                conn.execute("""
-                    DELETE FROM
-                    %s
-                    WHERE bookname=?
-                    """ % self.table, param)
-                conn.commit()
-        except Exception as e:
-            logger.error(e)
+        return BookMeta.delete().where(BookMeta.name == bookname)
 
     def load_novel(self, bookname):
-        try:
-            with sqlite3.connect(db) as conn:
-                param = (bookname,)
-                cursor = conn.execute("""
-                                SELECT * FROM
-                                %s
-                                WHERE bookname=?
-                                """ % self.table, param)
-                conn.commit()
-                rs = cursor.fetchone()
-                return rs
-        except Exception as e:
-            logger.error(e)
+        return BookMeta.select().where(BookMeta.name == bookname)
 
     def is_book_exits(self, bookname):
-        try:
-            return self.load_novel(bookname)[0] > -1
-        except Exception as e:
-            return False
+        return BookMeta.select().where(BookMeta.name == bookname)
 
     def load_read_at(self, bookname):
-        "只用于查询下一个章节，只有当新的章节被推送成功时，才能修改at的值"
-        if not self.is_book_exits(bookname):
-            logger.info(bookname + " not exits,create one")
-            self.add_novel(bookname)
-            return 1
-        try:
-            with sqlite3.connect(db) as conn:
-                param = (bookname,)
-                cursor = conn.execute("""
-                    SELECT at FROM %s
-                    WHERE bookname=?
-                    """ % self.table, param)
-                return cursor.fetchone()[0]
-        except Exception as e:
-            logger.error(e)
+        book = BookMeta.select().where(BookMeta.name == bookname).get()
+        return book.read_at
 
     def set_read_at(self, bookname, readAt):
-        "设置最后推送的章节数"
-        if not self.is_book_exits(bookname):
-            logger.info(bookname + " not exits,create one")
-            self.add_novel(bookname, bid=0, at=readAt)
-        try:
-            with sqlite3.connect(db) as conn:
-                param = (readAt, bookname,)
-                conn.execute("""
-                    UPDATE %s
-                    SET at=?
-                    WHERE bookname=?
-                    """ % self.table, param)
-                conn.commit()
-        except Exception as e:
-            logger.error(e)
+        book = BookMeta.select().where(BookMeta.name == bookname).get()
+        book.read_at = readAt
+        return book.save()
+
+
+class Chapter(BaseModel):
+    id = IntegerField(primary_key=True)
+    bookname = CharField()
+    chaTitle = CharField()
+    chaContent = TextField()
 
 
 class ChapterDao:
     def __init__(self):
-        self.table = "chapters"
+        pass
 
     def add_chapter(self, bookname, chaTitle, chaContent=""):
-        try:
-            with sqlite3.connect(db) as conn:
-                param = (bookname, chaTitle, chaContent,)
-                conn.execute("""
-                    INSERT INTO %s('bookname','chaTitle','chaContent')
-                    VALUES(?,?,?)
-                    """ % self.table, param)
-                conn.commit()
-        except Exception as e:
-            logger.error(e)
+        c = Chapter()
+        c.bookname = bookname
+        c.chaTitle = chaTitle
+        c.chaContent = chaContent
 
     def has_chapter(self, bookname, chaTitle):
-        try:
-            with sqlite3.connect(db) as conn:
-                param = (bookname, chaTitle,)
-                cursor = conn.execute("""
-                    SELECT count(*) FROM %s
-                    WHERE bookname=? AND chaTitle=?
-                    """ % self.table, param)
-                has = cursor.fetchone()[0]
-                if has == 1:
-                    return True
-                else:
-                    return False
-        except Exception as e:
-            logger.error(e)
+        return Chapter().select(fn.Count(Chapter.bookname)).where(
+            Chapter.bookname == bookname and Chapter.chaTitle == chaTitle)
 
     def delete_chapter(self, bookname, chaTitle):
-        try:
-            with sqlite3.connect(db) as conn:
-                param = (bookname, chaTitle,)
-                conn.execute("""
-                    delete from %s
-                    WHERE bookname =? AND chaTitle =?
-                """ % self.table, param)
-                conn.commit()
-        except Exception as e:
-            logger.error(e)
+        return Chapter().delete().where(Chapter.bookname == bookname and Chapter.chaTitle == chaTitle)
 
 
 class LogDAO:
@@ -149,7 +87,7 @@ class LogDAO:
     def insert(self, biz_no, content):
         from datetime import datetime
         try:
-            with sqlite3.connect(db) as conn:
+            with sqlite3.connect(db_path) as conn:
                 param = (biz_no, content, datetime.now())
                 conn.execute("""
                    insert into %s(biz_no,content,gmt_create)
@@ -166,7 +104,7 @@ class SendTaskDAO:
 
     def insert(self, biz_no, start="", status=0):
         try:
-            with sqlite3.connect(db) as conn:
+            with sqlite3.connect(db_path) as conn:
                 param = (biz_no, start, status)
                 conn.execute("""
                    insert into %s(biz_no,start,status)
@@ -178,7 +116,7 @@ class SendTaskDAO:
 
     def update(self, biz_no, end, status=1):
         try:
-            with sqlite3.connect(db) as conn:
+            with sqlite3.connect(db_path) as conn:
                 param = (end, status, biz_no)
                 conn.execute("""
                    update %s
@@ -188,3 +126,21 @@ class SendTaskDAO:
                 conn.commit()
         except Exception as e:
             logger.error(e)
+
+
+class BookDAO:
+    def __init__(self):
+        pass
+
+    def insert(self, book):
+        return book.save()
+
+    def select_all(self):
+        rst = BookMeta.select()
+        return rst
+
+    def delete(self, id):
+        return BookMeta.delete().where(BookMeta.id == id)
+
+    def update(self, book):
+        return book.save()

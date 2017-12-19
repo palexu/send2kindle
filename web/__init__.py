@@ -1,11 +1,21 @@
-from flask import Flask
-import os
+from flask import Flask, Response, jsonify
+
+#
+#
+# class MyResponse(Response):
+#     @classmethod
+#     def force_type(cls, response, environ=None):
+#         if isinstance(response, (list, dict)):
+#             response = jsonify(response)
+#         else
+#             response =
+#         return super(Response, cls).force_type(response, environ)
+
+
 app = Flask(__name__)
-# path = os.path.dirname(os.path.abspath("static"))+"/static"
-# print(path)
-# app._static_folder = path
-
-
+# app.response_class = MyResponse
 
 from . import ConfigService
 from . import BookService
+from . import SenderService
+from . import InitService
