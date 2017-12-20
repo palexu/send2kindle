@@ -30,14 +30,6 @@ with open(confg_path) as f:
     settings = json.load(f)
 
 
-def books():
-    return settings["books"]
-
-
-def book(key):
-    return settings["urls"][key]
-
-
 def mail():
     return settings["mail"]
 

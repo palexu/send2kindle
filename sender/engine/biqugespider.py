@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from bs4 import BeautifulSoup
-import requests
 import re
 
-from sender import dal
+import requests
+from bs4 import BeautifulSoup
+
 from sender.dal.model import Book
-from sender.dal.service import BookMeta, TaskDataService, DataService
+from sender.dal.service import TaskDataService, BookService
 from sender.novel import novel_handler
 from sender.util.config import *
 
@@ -53,8 +53,8 @@ class BiqugeSpider:
         :return:
         """
         book = Book(bookname)
-        dataService = DataService(bookname)
-        now_at = dataService.now_read_at()
+        dataService = BookService()
+        now_at = dataService.now_read_at(bookname)
 
         url_name_pair = self.get_new_chapter(pageUrl, now_at)
         new_chapter_size = len(url_name_pair)
@@ -77,7 +77,7 @@ class BiqugeSpider:
         for title, content in self.download(url_name_pair):
             book.add_section(title, content)
 
-        dataService.now_read_at(newest_at)
+        dataService.now_read_at(bookname, newest_at)
         return book
 
     def get_new_chapter(self, page_url, nowat):

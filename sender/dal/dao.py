@@ -4,7 +4,6 @@ import sqlite3
 from peewee import *
 from playhouse.sqlite_ext import SqliteExtDatabase
 from sender.util.config import *
-from datetime import datetime
 
 db = SqliteExtDatabase(db_path)
 
@@ -30,6 +29,34 @@ class BookMeta(BaseModel):
 
     class Meta:
         db_table = "book"
+
+    def parse(self, book):
+        """
+        接受dict与成员变量
+
+        :param book:
+        :return:
+        """
+        if isinstance(book, dict):
+            from bunch import bunchify
+            book = bunchify(book)
+        try:
+            self.id = book.id
+            self.name = book.name
+            self.author = book.author
+            self.url = book.url
+            self.limit = book.limit
+            self.read_at = book.read_at
+            self.send_rate = book.send_rate
+            self.status = book.status
+            self.remark = book.remark
+            return True
+        except Exception as e:
+            logger.error(e)
+            return False
+
+    def to_dict(self):
+        return self._data
 
 
 class ReadedDao:
@@ -133,14 +160,28 @@ class BookDAO:
         pass
 
     def insert(self, book):
-        return book.save()
+        try:
+            bm = BookMeta()
+            if not bm.parse(book):
+                return False
+            return bm.save()
+        except Exception as e:
+            logger.error(e)
+        return False
 
     def select_all(self):
-        rst = BookMeta.select()
-        return rst
+        return BookMeta.select()
 
     def delete(self, id):
         return BookMeta.delete().where(BookMeta.id == id)
 
-    def update(self, book):
-        return book.save()
+    def update(self, id, book):
+        try:
+            bm = BookMeta()
+            if not bm.parse(book):
+                return False
+            bm.id = id
+            return bm.update()
+        except Exception as e:
+            logger.error(e)
+        return False

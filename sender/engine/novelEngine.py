@@ -41,11 +41,11 @@ class NovelEngine(BaseEngine):
                 logger.error(e)
 
 
-def dispacher(config):
+def dispacher(book_config):
     books = []
     # 暂时只支持这个呗
     spider = biqugespider.BiqugeSpider()
-    for item in config:
+    for item in book_config:
         bookname = item.name
         url = item.url
         count = item.limit
