@@ -15,12 +15,13 @@ def insert():
     :return:
     """
     book = request.get_json()
+    print(book)
     BookService().add_book(book)
     return ""
 
 
-@app.route('/api/book/update', methods=['POST'])
-def update():
+@app.route('/api/book/update/<id>', methods=['POST'])
+def update(id):
     """
     book = {
         "key":value,
@@ -28,16 +29,12 @@ def update():
     :return:
     """
     book = request.get_json()
-    BookService().update_by_id(book["id"], book)
+    BookService().update_by_id(id, book)
     return ""
 
 
 @app.route('/api/book/delete/<id>')
 def delete(id):
-    """
-    书籍的初始化
-    :return:
-    """
     BookService().delete_by_id(id)
     return jsonify({
         "isSuccess": True

@@ -94,3 +94,37 @@ class TaskDataService:
             self._task_dao.update(self.biz_no, end=datetime.now(), status=status)
         except Exception as e:
             logger.error(e)
+
+
+class MailConfigService:
+    """
+    封装mail配置的读写，方便之后数据的迁移
+    """
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def write_mail(mail_config):
+        write_mail(mail_config)
+
+    @staticmethod
+    def read_mail():
+        return mail()
+
+
+class ServerChanConfigService:
+    """
+    封装server_chan配置的读写，方便之后数据的迁移
+    """
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def write_server_chan(sc):
+        write_server_chan(sc)
+
+    @staticmethod
+    def read_server_chan():
+        return server_chan()

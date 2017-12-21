@@ -25,17 +25,36 @@ logging_config = dict(
 logging.config.dictConfig(logging_config)
 logger = logging.getLogger()
 
+
 # =====================book config========================
-with open(confg_path) as f:
-    settings = json.load(f)
+
+def load_config():
+    with open(confg_path) as f:
+        return json.load(f)
 
 
 def mail():
-    return settings["mail"]
+    return load_config()["mail"]
 
 
 def server_chan():
     try:
-        return settings["serverChan"]["scKey"]
+        return load_config()["serverChan"]["scKey"]
     except:
         return ""
+
+
+def write_mail(mail_config):
+    settings = load_config()
+    with open(confg_path, "w") as f:
+        settings["mail"] = mail_config
+        j = json.dumps(settings)
+        f.write(j)
+
+
+def write_server_chan(sc_config):
+    settings = load_config()
+    with open(confg_path, "w") as f:
+        settings["serverChan"] = sc_config
+        j = json.dumps(settings)
+        f.write(j)

@@ -37,19 +37,18 @@ class BookMeta(BaseModel):
         :param book:
         :return:
         """
-        if isinstance(book, dict):
-            from bunch import bunchify
-            book = bunchify(book)
         try:
-            self.id = book.id
-            self.name = book.name
-            self.author = book.author
-            self.url = book.url
-            self.limit = book.limit
-            self.read_at = book.read_at
-            self.send_rate = book.send_rate
-            self.status = book.status
-            self.remark = book.remark
+            # self.id = book.id
+            # self.name = book.name
+            # self.author = book.author
+            # self.url = book.url
+            # self.limit = book.limit
+            # self.read_at = book.read_at
+            # self.send_rate = book.send_rate
+            # self.status = book.status
+            # self.remark = book.remark
+            for key in book:
+                self._data[key]=book[key]
             return True
         except Exception as e:
             logger.error(e)
@@ -173,15 +172,19 @@ class BookDAO:
         return BookMeta.select()
 
     def delete(self, id):
-        return BookMeta.delete().where(BookMeta.id == id)
+        return BookMeta.delete().where(BookMeta.id == id).execute()
 
     def update(self, id, book):
         try:
-            bm = BookMeta()
-            if not bm.parse(book):
-                return False
-            bm.id = id
-            return bm.update()
+            bm = BookMeta().select().where(BookMeta.id == id).get()
+            print(book)
+            for key in book:
+                print(book[key])
+                setattr(bm, key, book[key])
+            print(bm._data)
+            rst = bm.save()
+            print(rst)
+            return rst
         except Exception as e:
             logger.error(e)
         return False
