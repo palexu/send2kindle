@@ -7,11 +7,6 @@ from sender.dal.service import MailConfigService
 from . import app
 
 
-@app.route('/test')
-def test():
-    return "test..."
-
-
 @app.route('/api/mail/update', methods=['post'])
 def update_mail():
     mail_config = request.get_json()
