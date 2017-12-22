@@ -1,7 +1,6 @@
-from flask import Flask, render_template
 import web
-
-
+from schedule import run_background
 
 if __name__ == '__main__':
-    web.app.run(debug=True)
+    run_background()
+    web.app.run(debug=False)
