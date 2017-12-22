@@ -8,4 +8,4 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /app/send2kindle
-CMD PYTHONIOENCODING=utf-8 /usr/local/bin/python schedule.py
+CMD PYTHONIOENCODING=utf-8 /usr/local/bin/python web.py

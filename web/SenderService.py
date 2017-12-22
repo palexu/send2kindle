@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+from flask import jsonify
+
 from sender.service import run
 from . import app
 
@@ -7,7 +10,9 @@ from . import app
 @app.route('/sender/push/novel')
 def push_all_novel():
     run()
-    return ""
+    return jsonify({
+        "isSuccess": True
+    })
 
 
 @app.route('/sender/<biz_no>/info')

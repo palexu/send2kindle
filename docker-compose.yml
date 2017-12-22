@@ -1,5 +1,7 @@
 send2kindle:
     build: .
     container_name: s2k
+    ports:
+        - "8080:80"
     volumes:
         - ../send2kindle:/app/send2kindle
