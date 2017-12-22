@@ -1,11 +1,24 @@
 # send2kindle
-用于获取小说并推送到kindle。
+基于python2.7的小说每日推送服务，可以爬取指定网站的小说，并生成精美的mobi电子书推送到你心爱的kindle上。
+和KindleEar必须翻墙部署到GAE上相比，本项目可以部署到你个人的服务器、树莓派或者笔记本电脑上，只要安装了docker与docker-compose，就可以进行一键启动，并且占用资源更少。可惜的是目前不支持RSS订阅。
+
+项目仍处于起步阶段。
+
+## 开发中
+
+- web 界面
 
 ## TODO
 
+- 增加Docker方式启动对树莓派的支持
 - 一键初始化
 - 简化配置文件
-- web 管理界面
+
+## 本次更新
+
+- 现在可以生成精美的mobi格式电子书并推送到kindle上。
+- 添加对docker-compose的支持，一键启动
+- 优化配置文件
 
 ## 下载以及安装
 
@@ -23,6 +36,15 @@
       "url": "http://www.biqudao.com/bqge7946",//小说的目录页
       "count": 10//满10条推送
     }
+```
+
+注意，由于每次推送会把所有更新的章节都打包一起推送（相当于全文推送），因此如果添加的小说章节数过多，采集章节内容时间会很长，并且最终生成的mobi文件体积可能过大。
+
+解决方案：目前没有提供易用的界面来设置`当前已阅读到的章节`，熟悉sql的同学可以手动添加一条记录到sqlite db文件中，
+```
+INSERT INTO
+readed(bookname, at)
+VALUES("书名","章节名")
 ```
 
 配置你个人的smtp邮箱
@@ -54,6 +76,8 @@
 ```
 
 ## 运行方式：
+
+### 除raspberry-pi外的其他平台
 推荐使用docker以及docker-compose的方式运行
 
 安装docker以及docker-compose
@@ -61,6 +85,9 @@
 运行`docker-compose up -d`
 
 可以通过`docker logs -f s2k`查看系统运行的日志
+
+### raspberry-pi
+由于树莓派的cpu为ARM架构，因此本项目的dockerfile可能无法直接使用，需要改为专为ARM设计的容器，目前暂没有时间去测。计划下两次更新内将这个问题解决。
 
 ## 致谢
 使用了kindleEar拆离的calibre的mobi、epub电子书生成模块,
