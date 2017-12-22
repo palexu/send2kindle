@@ -4,11 +4,15 @@
 
 项目仍处于起步阶段。
 
+## 开发中
+
+- web 界面
+
 ## TODO
 
+- 增加Docker方式启动对树莓派的支持
 - 一键初始化
 - 简化配置文件
-- 添加 web 界面
 
 ## 本次更新
 
@@ -72,6 +76,8 @@ VALUES("书名","章节名")
 ```
 
 ## 运行方式：
+
+### 除raspberry-pi外的其他平台
 推荐使用docker以及docker-compose的方式运行
 
 安装docker以及docker-compose
@@ -79,6 +85,9 @@ VALUES("书名","章节名")
 运行`docker-compose up -d`
 
 可以通过`docker logs -f s2k`查看系统运行的日志
+
+### raspberry-pi
+由于树莓派的cpu为ARM架构，因此本项目的dockerfile可能无法直接使用，需要改为专为ARM设计的容器，目前暂没有时间去测。计划下两次更新内将这个问题解决。
 
 ## 致谢
 使用了kindleEar拆离的calibre的mobi、epub电子书生成模块,
